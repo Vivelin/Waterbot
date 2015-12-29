@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Kappa;
 
 namespace Waterbot
 {
@@ -30,15 +31,6 @@ namespace Waterbot
         {
             TwitchClient = new TwitchClient();
             TwitchClient.Disconnected += TwitchClient_Disconnected;
-        }
-
-        /// <summary>
-        /// Occurs when an IRC message has been received by the server.
-        /// </summary>
-        public event EventHandler<string> IrcMessageReceived
-        {
-            add { TwitchClient.IrcMessageReceived += value; }
-            remove { TwitchClient.IrcMessageReceived -= value; }
         }
 
         /// <summary>

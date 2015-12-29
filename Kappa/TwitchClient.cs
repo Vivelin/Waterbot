@@ -5,7 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using IrcDotNet;
 
-namespace Waterbot
+namespace Kappa
 {
     /// <summary>
     /// Represents a client that communicates with Twitch chat.
@@ -191,6 +191,10 @@ namespace Waterbot
         private void IrcClient_RawMessageReceived(object sender, IrcRawMessageEventArgs e)
         {
             OnRawMessageReceived(e.RawContent);
+
+            var message = Message.Parse(e.RawContent);
+            if (message is ChatMessage)
+                Console.WriteLine(message);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace WaterbotServer
@@ -7,6 +8,7 @@ namespace WaterbotServer
     {
         private static TaskCompletionSource<bool> quitTask;
 
+        private static List<string> Channels { get; set; }
         private static string OAuthKey { get; set; }
         private static string UserName { get; set; }
 
@@ -21,24 +23,32 @@ namespace WaterbotServer
                 value => OAuthKey = value);
             options.Add("h|help|?", "Prints this message and exits.",
                 value => showHelp = (value != null));
-            options.Parse(args);
+
+            Channels = options.Parse(args);
+            if (Channels == null || Channels.Count == 0)
+            {
+                Channels = new List<string>();
+                Channels.Add(UserName);
+            }
 
             if (showHelp || UserName == null || OAuthKey == null)
             {
                 Console.WriteLine("Runs the Waterbot server.");
                 Console.WriteLine();
-                Console.WriteLine("WaterbotServer --user=VALUE --key=VALUE");
+                Console.WriteLine("WaterbotServer --user=VALUE --key=VALUE [channel]");
                 Console.WriteLine();
                 options.WriteOptionDescriptions(Console.Out);
             }
             else
             {
-                Task.WaitAll(MainAsync(args));
+                Task.WaitAll(MainAsync());
             }
         }
 
-        private static async Task MainAsync(string[] args)
+        private static async Task MainAsync()
         {
+            Console.Title = "Waterbot server";
+
             // Prepare a task which completes when Ctrl+C is pressed
             quitTask = new TaskCompletionSource<bool>();
             Console.CancelKeyPress += (sender, e) =>
@@ -51,9 +61,8 @@ namespace WaterbotServer
             {
                 waterbot.UserName = UserName;
                 waterbot.OAuthKey = OAuthKey;
-                waterbot.IrcMessageReceived += (sender, e) => Console.WriteLine(e);
 
-                await waterbot.StartAsync(waterbot.UserName);
+                await waterbot.StartAsync(Channels.ToArray());
                 Console.WriteLine("Press Ctrl+C to stop Waterbot");
 
                 // Wait until Ctrl+C is pressed, then exit gracefully
