@@ -51,6 +51,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Kappa\Kappa.csproj">
+      <Project>{8344e526-df88-47b4-9da6-9865d29d3a60}</Project>
+      <Name>Kappa</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Waterbot\Waterbot.csproj">
       <Project>{01bcd9ff-1830-4f68-b170-8dd45f071cd3}</Project>
       <Name>Waterbot</Name>

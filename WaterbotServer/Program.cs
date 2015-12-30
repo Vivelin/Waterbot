@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Kappa;
 
-namespace WaterbotServer
+namespace Waterbot.WaterbotServer
 {
     internal class Program
     {
@@ -61,6 +62,8 @@ namespace WaterbotServer
             {
                 waterbot.UserName = UserName;
                 waterbot.OAuthKey = OAuthKey;
+                waterbot.MessageReceived += Waterbot_MessageReceived;
+                waterbot.MessageSent += Waterbot_MessageSent;
 
                 await waterbot.StartAsync(Channels.ToArray());
                 Console.WriteLine("Press Ctrl+C to stop Waterbot");
@@ -69,6 +72,23 @@ namespace WaterbotServer
                 await quitTask.Task;
                 await waterbot.StopAsync();
             }
+        }
+
+        private static void Waterbot_MessageReceived(object sender, ChatMessageEventArgs e)
+        {
+            Console.Write(e.Message.DisplayName);
+            Console.Write(": ");
+            Console.WriteLine(e.Message.Contents);
+        }
+
+        private static void Waterbot_MessageSent(object sender, MessageSentEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write(UserName);
+            Console.Write(": ");
+
+            Console.ResetColor();
+            Console.WriteLine(e.Contents);
         }
     }
 }

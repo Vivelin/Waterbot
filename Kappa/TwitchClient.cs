@@ -41,9 +41,9 @@ namespace Kappa
         public event EventHandler Disconnected;
 
         /// <summary>
-        /// Occurs when an IRC message has been received by the server.
+        /// Occurs when a chat message has been received.
         /// </summary>
-        public event EventHandler<string> IrcMessageReceived;
+        public event EventHandler<ChatMessageEventArgs> MessageReceived;
 
         /// <summary>
         /// Gets the IRC client used to communicate with the Twitch chat IRC
@@ -119,6 +119,24 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Sends a chat message to the specified channel.
+        /// </summary>
+        /// <param name="channel">
+        /// The name of the channel to send the message to. The leading '#' is
+        /// optional.
+        /// </param>
+        /// <param name="message">
+        /// The contents of the chat message to send.
+        /// </param>
+        public virtual void SendMessage(string channel, string message)
+        {
+            var raw = TwitchUtil.FormatMessage(Commands.PRIVMSG,
+                TwitchUtil.EscapeChannelName(channel), message);
+
+            IrcClient.SendRawMessage(raw);
+        }
+
+        /// <summary>
         /// Releases all resources used by the <see cref="TwitchClient"/>
         /// object.
         /// </summary>
@@ -148,12 +166,13 @@ namespace Kappa
         }
 
         /// <summary>
-        /// Raises the <see cref="IrcMessageReceived"/> event.
+        /// Raises the <see cref="MessageReceived"/> event.
         /// </summary>
-        /// <param name="args">The event data.</param>
-        protected virtual void OnRawMessageReceived(string args)
+        /// <param name="message">The message that was received.</param>
+        protected virtual void OnMessageReceived(ChatMessage message)
         {
-            IrcMessageReceived?.Invoke(this, args);
+            var args = new ChatMessageEventArgs(message);
+            MessageReceived?.Invoke(this, args);
         }
 
         private void IrcClient_Connected(object sender, EventArgs e)
@@ -190,11 +209,16 @@ namespace Kappa
 
         private void IrcClient_RawMessageReceived(object sender, IrcRawMessageEventArgs e)
         {
-            OnRawMessageReceived(e.RawContent);
-
             var message = Message.Parse(e.RawContent);
+
             if (message is ChatMessage)
-                Console.WriteLine(message);
+            {
+                OnMessageReceived((ChatMessage)message);
+            }
+            else
+            {
+                Trace.WriteLine(message.RawMessage, "Unhandled message received");
+            }
         }
     }
 }

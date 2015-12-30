@@ -200,16 +200,5 @@ namespace Kappa
 
             return tags;
         }
-
-        /// <summary>
-        /// Specifies the supported message commands.
-        /// </summary>
-        protected static class Commands
-        {
-            /// <summary>
-            /// Indicates a chat message.
-            /// </summary>
-            public const string PRIVMSG = "PRIVMSG";
-        }
     }
 }

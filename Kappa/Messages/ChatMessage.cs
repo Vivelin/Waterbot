@@ -26,16 +26,14 @@ namespace Kappa
             IReadOnlyList<string> parameters)
             : base(message, tags, prefix, command, parameters)
         {
-            // First parameter contains the channel name, starting with a #
-            var channel = parameters[0];
-            Channel = channel.TrimStart('#');
+            if (parameters.Count < 2)
+                throw new ArgumentException(
+                    "A chat message should always contain at least two parameters.",
+                    nameof(parameters));
 
-            // Last (2nd) parameter contains the message
-            Message = parameters[1];
-
-            DisplayName = UserName;
-            if (tags.ContainsKey("display-name"))
-                DisplayName = tags["display-name"];
+            Channel = TwitchUtil.UnescapeChannelName(parameters[0]);
+            Contents = parameters[1];
+            DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
         }
 
         /// <summary>
@@ -44,14 +42,14 @@ namespace Kappa
         public string Channel { get; }
 
         /// <summary>
+        /// Gets the contents of the chat message.
+        /// </summary>
+        public string Contents { get; }
+
+        /// <summary>
         /// Gets the user's display name.
         /// </summary>
         public string DisplayName { get; }
-
-        /// <summary>
-        /// Gets the contents of the chat message.
-        /// </summary>
-        public string Message { get; }
 
         /// <summary>
         /// Returns a string representing the chat message.
@@ -59,7 +57,7 @@ namespace Kappa
         /// <returns>A string that represents this instance.</returns>
         public override string ToString()
         {
-            return $"{DisplayName}: {Message}";
+            return $"{DisplayName}: {Contents}";
         }
     }
 }
