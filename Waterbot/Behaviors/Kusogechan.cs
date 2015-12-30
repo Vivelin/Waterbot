@@ -5,23 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Kappa;
 
-namespace Waterbot
+namespace Waterbot.Behaviors
 {
     /// <summary>
-    /// Provides methods that determine the bot's default behavior.
+    /// Provides methods that determine the bot's behavior as Kusoge-chan.
     /// </summary>
-    public class DefaultBehavior : Behavior
+    public class Kusogechan : DefaultBehavior
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultBehavior"/>
-        /// class.
+        /// Initializes a new instance of the <see cref="Kusogechan"/> class.
         /// </summary>
-        public DefaultBehavior()
+        public Kusogechan()
         {
         }
 
         /// <summary>
-        /// Determines the bot's default response to the specified message.
+        /// Determines Kusoge-chan's response to the specified message.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>
@@ -30,7 +29,9 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetResponse(ChatMessage message)
         {
-            return null;
+            if (message.Contents.Contains("JediRosh"))
+                return message.CreateResponse("JediRosh");
+            return base.GetResponse(message);
         }
     }
 }

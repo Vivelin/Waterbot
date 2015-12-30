@@ -49,14 +49,12 @@ namespace Waterbot
         /// <summary>
         /// Gets or sets <see cref="Waterbot"/>'s behavior.
         /// </summary>
-        public virtual Behavior Behavior
+        public Behavior Behavior
         {
             get
             {
                 if (behavior == null)
-                {
-                    behavior = new DefaultBehavior();
-                }
+                    behavior = GetBehavior();
                 return behavior;
             }
             set { behavior = value; }
@@ -136,6 +134,23 @@ namespace Waterbot
                 }
 
                 isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Gets a new instance of the behavior appropiate for this instance.
+        /// </summary>
+        /// <returns>A new <see cref="Behavior"/> object.</returns>
+        protected virtual Behavior GetBehavior()
+        {
+            switch (UserName.ToLower())
+            {
+                case "kusogechan":
+                    return new Behaviors.Kusogechan();
+
+                default:
+                    Trace.WriteLine($"No behavior specified for {UserName}, falling back to default behavior", "WARNING");
+                    return new DefaultBehavior();
             }
         }
 
