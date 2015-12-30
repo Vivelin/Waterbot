@@ -41,7 +41,7 @@ namespace Kappa
         public static string EscapeLastParam(string param)
         {
             if (param == null) return null;
-            if (param.Length == 0) return string.Empty;
+            if (param.Length == 0) return ":";
 
             if (param[0] != ':' && param.IndexOf(' ') >= 0)
                 param = ':' + param;
@@ -52,18 +52,35 @@ namespace Kappa
         /// Constructs a raw IRC message.
         /// </summary>
         /// <param name="command">The IRC command to send.</param>
-        /// <param name="parameters">The command parameters.</param>
+        /// <param name="parameters">
+        /// A string array containing the command parameters.
+        /// </param>
         /// <returns>
         /// A string representing a raw IRC message for sending.
         /// </returns>
         public static string FormatMessage(string command, params string[] parameters)
+        {
+            return FormatMessage(command, new List<string>(parameters));
+        }
+
+        /// <summary>
+        /// Constructs a raw IRC message.
+        /// </summary>
+        /// <param name="command">The IRC command to send.</param>
+        /// <param name="parameters">
+        /// A list containing the command parameters.
+        /// </param>
+        /// <returns>
+        /// A string representing a raw IRC message for sending.
+        /// </returns>
+        public static string FormatMessage(string command, IList<string> parameters)
         {
             var raw = new StringBuilder();
 
             raw.Append(command.ToUpper());
 
             var i = 0;
-            for (i = 0; i < (parameters.Length - 1); i++)
+            for (i = 0; i < (parameters.Count - 1); i++)
             {
                 raw.Append(' ');
                 raw.Append(parameters[i]);

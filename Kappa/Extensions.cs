@@ -12,6 +12,31 @@ namespace Kappa
     public static class Extensions
     {
         /// <summary>
+        /// Returns a value indicating whether a specified substring occurs
+        /// within this string, ignoring or honing their case.
+        /// </summary>
+        /// <param name="self">The string to find the substring in.</param>
+        /// <param name="value">The string to seek.</param>
+        /// <param name="ignoreCase">
+        /// <c>true</c> to ignore case during comparison; otherwise,
+        /// <c>false</c>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if this string contains the specified substring;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        public static bool Contains(this string self, string value, bool ignoreCase)
+        {
+            if (ignoreCase)
+            {
+                self = self.ToLowerInvariant();
+                value = value.ToLowerInvariant();
+            }
+
+            return self.Contains(value);
+        }
+
+        /// <summary>
         /// Gets the value that is associated with the specified key, or the
         /// default value for <typeparamref name="TValue"/>.
         /// </summary>

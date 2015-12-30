@@ -46,6 +46,11 @@ namespace Kappa
         public event EventHandler<ChatMessageEventArgs> MessageReceived;
 
         /// <summary>
+        /// Gets the name of the user that is connected to Twitch.
+        /// </summary>
+        public string UserName { get; set; }
+
+        /// <summary>
         /// Gets the IRC client used to communicate with the Twitch chat IRC
         /// server.
         /// </summary>
@@ -79,6 +84,7 @@ namespace Kappa
             await connectTask.Task;
 
             Trace.WriteLine(string.Format("Connected to {0}", twitchEP), "Info");
+            UserName = userName;
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
@@ -121,19 +127,14 @@ namespace Kappa
         /// <summary>
         /// Sends a chat message to the specified channel.
         /// </summary>
-        /// <param name="channel">
-        /// The name of the channel to send the message to. The leading '#' is
-        /// optional.
-        /// </param>
-        /// <param name="message">
-        /// The contents of the chat message to send.
-        /// </param>
-        public virtual void SendMessage(string channel, string message)
+        /// <param name="message">The chat message to send.</param>
+        public virtual void SendMessage(ChatMessage message)
         {
-            var raw = TwitchUtil.FormatMessage(Commands.PRIVMSG,
-                TwitchUtil.EscapeChannelName(channel), message);
-
+            var raw = message.ConstructCommand();
             IrcClient.SendRawMessage(raw);
+
+            message.UserName = UserName;
+            message.DisplayName = UserName;
         }
 
         /// <summary>

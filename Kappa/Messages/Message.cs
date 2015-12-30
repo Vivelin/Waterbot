@@ -16,16 +16,25 @@ namespace Kappa
         /// <summary>
         /// Initializes a new instance of the <see cref="Message"/> class.
         /// </summary>
+        public Message()
+        {
+            Parameters = new List<string>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Message"/> class with
+        /// the contents of the parsed message.
+        /// </summary>
         /// <param name="message">The raw IRC message.</param>
         /// <param name="tags">A dictionary containing the message tags.</param>
         /// <param name="prefix">The message prefix.</param>
         /// <param name="command">The message command.</param>
         /// <param name="parameters">The parameters of the command.</param>
-        protected Message(string message,
+        protected internal Message(string message,
             IReadOnlyDictionary<string, string> tags,
             string prefix,
             string command,
-            IReadOnlyList<string> parameters)
+            IList<string> parameters)
         {
             RawMessage = message;
             Tags = tags;
@@ -44,33 +53,37 @@ namespace Kappa
         /// <summary>
         /// Gets the IRC command name of the message.
         /// </summary>
-        public string Command { get; }
+        public string Command { get; protected set; }
 
         /// <summary>
         /// Gets a list that contains the command's parameters.
         /// </summary>
-        public IReadOnlyList<string> Parameters { get; }
+        public IList<string> Parameters { get; }
 
         /// <summary>
-        /// Gets a value containing the message prefix, or <c>null</c>.
+        /// Gets a value containing the message prefix, or <c>null</c> if no
+        /// prefix was specified. This property does not apply to messages to be
+        /// sent.
         /// </summary>
         public string Prefix { get; }
 
         /// <summary>
-        /// Gets the raw message as it was sent by the server.
+        /// Gets the raw message as it was sent by the server. This property
+        /// does not apply to messages to be sent.
         /// </summary>
         public string RawMessage { get; }
 
         /// <summary>
         /// Gets a dictionary containing the tags for the message, or
-        /// <c>null</c> of the message did not have any tags.
+        /// <c>null</c> if the message did not have any tags. This property does
+        /// not apply to messages to be sent.
         /// </summary>
         public IReadOnlyDictionary<string, string> Tags { get; }
 
         /// <summary>
         /// Gets the name of the user from which this message originates.
         /// </summary>
-        public string UserName { get; }
+        public string UserName { get; protected internal set; }
 
         /// <summary>
         /// Parses the specified IRC message.
@@ -145,6 +158,15 @@ namespace Kappa
             }
 
             return Create(message, tags, prefix, command, parameters);
+        }
+
+        /// <summary>
+        /// Gets the raw IRC command for sending this message.
+        /// </summary>
+        /// <returns>A string containing the IRC message to send.</returns>
+        public virtual string ConstructCommand()
+        {
+            return TwitchUtil.FormatMessage(Command, Parameters);
         }
 
         /// <summary>

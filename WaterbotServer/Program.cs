@@ -58,7 +58,7 @@ namespace Waterbot.WaterbotServer
                 quitTask.SetResult(true);
             };
 
-            using (var waterbot = new Waterbot.Server())
+            using (var waterbot = new Waterbot())
             {
                 waterbot.UserName = UserName;
                 waterbot.OAuthKey = OAuthKey;
@@ -81,14 +81,14 @@ namespace Waterbot.WaterbotServer
             Console.WriteLine(e.Message.Contents);
         }
 
-        private static void Waterbot_MessageSent(object sender, MessageSentEventArgs e)
+        private static void Waterbot_MessageSent(object sender, ChatMessageEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write(UserName);
+            Console.Write(e.Message.DisplayName);
             Console.Write(": ");
 
             Console.ResetColor();
-            Console.WriteLine(e.Contents);
+            Console.WriteLine(e.Message.Contents);
         }
     }
 }

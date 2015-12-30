@@ -21,14 +21,15 @@ namespace Waterbot
     /// }
     /// </code>
     /// </example>
-    public class Server : IDisposable
+    public class Waterbot : IDisposable
     {
+        private Behavior behavior = null;
         private bool isDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Server"/> class.
+        /// Initializes a new instance of the <see cref="Waterbot"/> class.
         /// </summary>
-        public Server()
+        public Waterbot()
         {
             TwitchClient = new TwitchClient();
             TwitchClient.Disconnected += TwitchClient_Disconnected;
@@ -43,7 +44,23 @@ namespace Waterbot
         /// <summary>
         /// Occurs when a chat message was sent by the bot.
         /// </summary>
-        public event EventHandler<MessageSentEventArgs> MessageSent;
+        public event EventHandler<ChatMessageEventArgs> MessageSent;
+
+        /// <summary>
+        /// Gets or sets <see cref="Waterbot"/>'s behavior.
+        /// </summary>
+        public virtual Behavior Behavior
+        {
+            get
+            {
+                if (behavior == null)
+                {
+                    behavior = new DefaultBehavior();
+                }
+                return behavior;
+            }
+            set { behavior = value; }
+        }
 
         /// <summary>
         /// Gets or sets the OAuth key used in place of a password when
@@ -67,44 +84,11 @@ namespace Waterbot
         protected TwitchClient TwitchClient { get; }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="Server"/> object.
+        /// Releases all resources used by the <see cref="Waterbot"/> object.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-        }
-
-        /// <summary>
-        /// Sends a message to the channel that the specified message originates
-        /// from.
-        /// </summary>
-        /// <param name="message">The message to respond to.</param>
-        /// <param name="response">The message to respond with.</param>
-        public void RespondTo(ChatMessage message, string response)
-        {
-            RespondTo(message, response, false);
-        }
-
-        /// <summary>
-        /// Sends a message to the channel that the specified message originates
-        /// from, optionally including the name of the sender in the response.
-        /// </summary>
-        /// <param name="message">The message to respond to.</param>
-        /// <param name="response">The message to respond with.</param>
-        /// <param name="mention">
-        /// Indicates whether to mention the name of the user in the response.
-        /// </param>
-        public void RespondTo(ChatMessage message, string response, bool mention)
-        {
-            if (message == null)
-                throw new ArgumentNullException(nameof(message));
-
-            // TODO: case-insensitive matching
-            if (mention && !response.Contains(message.UserName))
-                response = $"@{message.DisplayName} {response}";
-
-            TwitchClient.SendMessage(message.Channel, response);
-            OnMessageSent(message.Channel, response);
         }
 
         /// <summary>
@@ -136,7 +120,7 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="Server"/> object.
+        /// Releases all resources used by the <see cref="Waterbot"/> object.
         /// </summary>
         /// <param name="disposing">
         /// Indicates whether to release managed resources.
@@ -170,11 +154,12 @@ namespace Waterbot
         /// <summary>
         /// Raises the <see cref="MessageSent"/> event.
         /// </summary>
-        /// <param name="channel">The name of the channel.</param>
-        /// <param name="message">The contents of the message.</param>
-        protected virtual void OnMessageSent(string channel, string message)
+        /// <param name="args">
+        /// A <see cref="ChatMessageEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnMessageSent(ChatMessageEventArgs args)
         {
-            var args = new MessageSentEventArgs(channel, message);
             MessageSent?.Invoke(this, args);
         }
 
@@ -194,7 +179,12 @@ namespace Waterbot
                 return;
             }
 
-            RespondTo(e.Message, e.Message.Contents);
+            var response = Behavior.GetResponse(e.Message);
+            if (response != null)
+            {
+                TwitchClient.SendMessage(response);
+                OnMessageSent(new ChatMessageEventArgs(response));
+            }
         }
     }
 }
