@@ -45,7 +45,9 @@ namespace Kappa
 
             Channel = IrcUtil.UnescapeChannelName(parameters[0]);
             Contents = parameters[1];
+
             DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
+            if (DisplayName.Length == 0) DisplayName = UserName;
         }
 
         /// <summary>
@@ -70,6 +72,19 @@ namespace Kappa
         /// Gets the user's display name.
         /// </summary>
         public string DisplayName { get; protected internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
+        /// Twitch admin.
+        /// </summary>
+        public bool IsAdmin
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "admin";
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is the

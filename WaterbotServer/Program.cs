@@ -83,10 +83,12 @@ namespace Waterbot.WaterbotServer
 
             if (e.Message.IsBroadcaster)
                 Console.ForegroundColor = ConsoleColor.Red;
+            else if (e.Message.IsAdmin)
+                Console.ForegroundColor = ConsoleColor.Yellow;
             else if (e.Message.IsMod)
                 Console.ForegroundColor = ConsoleColor.Green;
             else if (e.Message.IsSub)
-                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.Blue;
             else
                 Console.ResetColor();
 
