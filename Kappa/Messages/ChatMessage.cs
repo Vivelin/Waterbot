@@ -72,6 +72,44 @@ namespace Kappa
         public string DisplayName { get; protected internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether the user who sent the message is the
+        /// broadcaster.
+        /// </summary>
+        public bool IsBroadcaster
+        {
+            get
+            {
+                return string.Compare(UserName, Channel, true) == 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
+        /// moderator in the current channel.
+        /// </summary>
+        public bool IsMod
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "mod";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is
+        /// subscribed to the current channel.
+        /// </summary>
+        public bool IsSub
+        {
+            get
+            {
+                var subscriber = Tags?.Get(MessageTags.Subscriber);
+                return subscriber == "1";
+            }
+        }
+
+        /// <summary>
         /// Gets the raw IRC command for sending this message.
         /// </summary>
         /// <returns>A string containing the IRC message to send.</returns>
