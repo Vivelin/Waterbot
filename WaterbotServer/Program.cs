@@ -81,9 +81,19 @@ namespace Waterbot.WaterbotServer
             Console.Write(e.Message.Channel);
             Console.Write("] ");
 
-            Console.ResetColor();
+            if (e.Message.IsBroadcaster)
+                Console.ForegroundColor = ConsoleColor.Red;
+            else if (e.Message.IsMod)
+                Console.ForegroundColor = ConsoleColor.Green;
+            else if (e.Message.IsSub)
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
+            else
+                Console.ResetColor();
+
             Console.Write(e.Message.DisplayName);
             Console.Write(": ");
+
+            Console.ResetColor();
             Console.WriteLine(e.Message.Contents);
         }
 
@@ -94,12 +104,8 @@ namespace Waterbot.WaterbotServer
             Console.Write(e.Message.Channel);
             Console.Write("] ");
 
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write(e.Message.DisplayName);
-            Console.Write(": ");
-
-            Console.ResetColor();
             Console.WriteLine(e.Message.Contents);
+            Console.ResetColor();
         }
     }
 }
