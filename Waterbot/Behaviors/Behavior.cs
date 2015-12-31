@@ -29,6 +29,34 @@ namespace Waterbot
         public string UserName { get; }
 
         /// <summary>
+        /// When overridden in a derived class, determines the bot's message
+        /// when joining a channel.
+        /// </summary>
+        /// <param name="channel">The channel that was joined.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public virtual ChatMessage GetJoinMessage(string channel)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// When overridden in a derived class, determines the bot's message
+        /// when leaving a channel.
+        /// </summary>
+        /// <param name="channel">The channel that was left.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public virtual ChatMessage GetPartMessage(string channel)
+        {
+            return null;
+        }
+
+        /// <summary>
         /// When overridden in a derived class, determines the bot's response to
         /// the specified message.
         /// </summary>

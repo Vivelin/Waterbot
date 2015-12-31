@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kappa;
+using Waterbot.Common;
 
 namespace Waterbot.Behaviors
 {
@@ -19,9 +20,10 @@ namespace Waterbot.Behaviors
         /// <param name="userName">The user name of the bot.</param>
         public Kusogechan(string userName) : base(userName)
         {
-            DefaultResponses.Clear();
-            DefaultResponses.Add("I don't get it.");
             DefaultResponses.Add("Where are my video games?");
+
+            Farewells.Clear();
+            Farewells.Add("See ya nerds!");
         }
 
         /// <summary>

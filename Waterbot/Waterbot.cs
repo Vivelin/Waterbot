@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -31,9 +32,11 @@ namespace Waterbot
         /// </summary>
         public Waterbot()
         {
-            TwitchClient = new TwitchChat();
-            TwitchClient.Disconnected += TwitchClient_Disconnected;
-            TwitchClient.MessageReceived += TwitchClient_MessageReceived;
+            TwitchChat = new TwitchChat();
+            TwitchChat.Disconnected += TwitchChat_Disconnected;
+            TwitchChat.MessageReceived += TwitchChat_MessageReceived;
+
+            Channels = new List<string>();
         }
 
         /// <summary>
@@ -61,6 +64,11 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Gets a list of channels the bot is currently connected to.
+        /// </summary>
+        public IList<string> Channels { get; }
+
+        /// <summary>
         /// Gets or sets the OAuth key used in place of a password when
         /// connecting to Twitch chat.
         /// </summary>
@@ -76,10 +84,10 @@ namespace Waterbot
         public string UserName { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="TwitchClient"/> object used to communicate with
+        /// Gets the <see cref="TwitchChat"/> object used to communicate with
         /// Twitch chat.
         /// </summary>
-        protected TwitchChat TwitchClient { get; }
+        protected TwitchChat TwitchChat { get; }
 
         /// <summary>
         /// Releases all resources used by the <see cref="Waterbot"/> object.
@@ -102,7 +110,19 @@ namespace Waterbot
         /// </returns>
         public async Task StartAsync(params string[] channels)
         {
-            await TwitchClient.ConnectAsync(UserName, OAuthKey, channels);
+            await TwitchChat.ConnectAsync(UserName, OAuthKey, channels);
+
+            foreach (var channel in channels)
+            {
+                Channels.Add(channel);
+
+                var message = Behavior.GetJoinMessage(channel);
+                if (message != null)
+                {
+                    await TwitchChat.SendMessage(message);
+                    OnMessageSent(new ChatMessageEventArgs(message));
+                }
+            }
         }
 
         /// <summary>
@@ -114,7 +134,17 @@ namespace Waterbot
         /// </returns>
         public async Task StopAsync()
         {
-            await TwitchClient.DisconnectAsync();
+            foreach (var channel in Channels)
+            {
+                var message = Behavior.GetPartMessage(channel);
+                if (message != null)
+                {
+                    await TwitchChat.SendMessage(message);
+                    OnMessageSent(new ChatMessageEventArgs(message));
+                }
+            }
+
+            await TwitchChat.DisconnectAsync();
         }
 
         /// <summary>
@@ -147,12 +177,13 @@ namespace Waterbot
             {
                 if (disposing)
                 {
-                    TwitchClient?.Dispose();
+                    TwitchChat?.Dispose();
                 }
 
                 isDisposed = true;
             }
         }
+
         /// <summary>
         /// Raises the <see cref="MessageReceived"/> event.
         /// </summary>
@@ -177,13 +208,13 @@ namespace Waterbot
             MessageSent?.Invoke(this, args);
         }
 
-        private void TwitchClient_Disconnected(object sender, EventArgs e)
+        private void TwitchChat_Disconnected(object sender, EventArgs e)
         {
             // TODO: Implement automatic reconnecting
             Console.WriteLine("Disconnected from Twitch!");
         }
 
-        private void TwitchClient_MessageReceived(object sender, ChatMessageEventArgs e)
+        private async void TwitchChat_MessageReceived(object sender, ChatMessageEventArgs e)
         {
             OnMessageReceived(e);
 
@@ -196,7 +227,7 @@ namespace Waterbot
             var response = Behavior.GetResponse(e.Message);
             if (response != null)
             {
-                TwitchClient.SendMessage(response);
+                await TwitchChat.SendMessage(response);
                 OnMessageSent(new ChatMessageEventArgs(response));
             }
         }

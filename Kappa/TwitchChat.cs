@@ -16,6 +16,7 @@ namespace Kappa
         private TaskCompletionSource<bool> connectTask;
         private TaskCompletionSource<bool> disconnectTask;
         private bool isDisposed = false;
+        private TaskCompletionSource<bool> sendMessageTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TwitchChat"/> class,
@@ -32,6 +33,7 @@ namespace Kappa
             IrcClient.ConnectFailed += IrcClient_ConnectFailed;
             IrcClient.Disconnected += IrcClient_Disconnected;
             IrcClient.RawMessageReceived += IrcClient_RawMessageReceived;
+            IrcClient.RawMessageSent += IrcClient_RawMessageSent;
         }
 
         /// <summary>
@@ -127,13 +129,19 @@ namespace Kappa
         /// Sends a chat message to the specified channel.
         /// </summary>
         /// <param name="message">The chat message to send.</param>
-        public virtual void SendMessage(ChatMessage message)
+        public virtual async Task SendMessage(ChatMessage message)
         {
-            var raw = message.ConstructCommand();
-            IrcClient.SendRawMessage(raw);
+            if (message != null)
+            {
+                var raw = message.ConstructCommand();
+                sendMessageTask = new TaskCompletionSource<bool>();
 
-            message.UserName = UserName;
-            message.DisplayName = UserName;
+                IrcClient.SendRawMessage(raw);
+                await sendMessageTask.Task;
+
+                message.UserName = UserName;
+                message.DisplayName = UserName;
+            }
         }
 
         /// <summary>
@@ -218,6 +226,12 @@ namespace Kappa
             {
                 Trace.WriteLine(message.RawMessage, "Unhandled message received");
             }
+        }
+
+        private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)
+        {
+            if (sendMessageTask != null)
+                sendMessageTask.TrySetResult(true);
         }
     }
 }
