@@ -158,6 +158,9 @@ namespace Waterbot
                 case "kusogechan":
                     return new Behaviors.Kusogechan(UserName);
 
+                case "horsedrowner":
+                    return new Behaviors.NoBehavior(UserName);
+
                 default:
                     Trace.WriteLine($"No behavior specified for {UserName}, falling back to default behavior", "WARNING");
                     return new DefaultBehavior(UserName);

@@ -46,6 +46,7 @@
     <Compile Include="Behaviors\Behavior.cs" />
     <Compile Include="Behaviors\DefaultBehavior.cs" />
     <Compile Include="Behaviors\Kusogechan.cs" />
+    <Compile Include="Behaviors\NoBehavior.cs" />
     <Compile Include="Waterbot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
