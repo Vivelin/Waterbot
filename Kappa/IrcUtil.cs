@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Kappa
 {
     /// <summary>
-    /// Provides common utility methods for interacting with Twitch chat.
+    /// Provides common utility methods for interacting with Twitch chat IRC.
     /// </summary>
-    public static class TwitchUtil
+    public static class IrcUtil
     {
         /// <summary>
         /// Escapes the specified string as a channel name.

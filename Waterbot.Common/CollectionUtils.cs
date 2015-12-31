@@ -4,36 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kappa
+namespace Waterbot.Common
 {
     /// <summary>
-    /// Extends .NET framework classes with some much-needed methods.
+    /// Provides additional functionality for interacting with collections.
     /// </summary>
-    public static class Extensions
+    public static class CollectionUtils
     {
         /// <summary>
-        /// Returns a value indicating whether a specified substring occurs
-        /// within this string, ignoring or honing their case.
+        /// Returns a random element from the list.
         /// </summary>
-        /// <param name="self">The string to find the substring in.</param>
-        /// <param name="value">The string to seek.</param>
-        /// <param name="ignoreCase">
-        /// <c>true</c> to ignore case during comparison; otherwise,
-        /// <c>false</c>.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if this string contains the specified substring;
-        /// otherwise, <c>false</c>.
-        /// </returns>
-        public static bool Contains(this string self, string value, bool ignoreCase)
+        /// <typeparam name="T">The type of elements in the list.</typeparam>
+        /// <param name="list">The list to return an element from.</param>
+        /// <returns>A random element from the list.</returns>
+        public static T Sample<T>(this IList<T> list)
         {
-            if (ignoreCase)
-            {
-                self = self.ToLowerInvariant();
-                value = value.ToLowerInvariant();
-            }
+            var rng = new Random();
+            return list.Sample(rng);
+        }
 
-            return self.Contains(value);
+        /// <summary>
+        /// Returns a random element from the list using the specified random
+        /// number generator.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the list.</typeparam>
+        /// <param name="list">The list to return an element from.</param>
+        /// <param name="rng">The random number generator to use.</param>
+        /// <returns>A random element from the list.</returns>
+        public static T Sample<T>(this IList<T> list, Random rng)
+        {
+            var i = rng.Next(0, list.Count);
+            return list[i];
         }
 
         /// <summary>

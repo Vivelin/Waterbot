@@ -13,10 +13,15 @@ namespace Waterbot.Behaviors
     public class Kusogechan : DefaultBehavior
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Kusogechan"/> class.
+        /// Initializes a new instance of the <see cref="Kusogechan"/> class
+        /// using the specified user name.
         /// </summary>
-        public Kusogechan()
+        /// <param name="userName">The user name of the bot.</param>
+        public Kusogechan(string userName) : base(userName)
         {
+            DefaultResponses.Clear();
+            DefaultResponses.Add("I don't get it.");
+            DefaultResponses.Add("Where are my video games?");
         }
 
         /// <summary>
@@ -29,8 +34,14 @@ namespace Waterbot.Behaviors
         /// </returns>
         public override ChatMessage GetResponse(ChatMessage message)
         {
-            if (message.Contents.Contains("JediRosh"))
-                return message.CreateResponse("JediRosh");
+            string[] echo = { "JediRosh", "AWOOOO", "Poi!" };
+            foreach (var item in echo)
+            {
+                if (message.Contents.Contains(item))
+                    return message.CreateResponse(item);
+            }
+
+            // Fall back to default behavior
             return base.GetResponse(message);
         }
     }

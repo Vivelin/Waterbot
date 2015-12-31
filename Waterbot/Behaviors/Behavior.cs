@@ -14,6 +14,21 @@ namespace Waterbot
     public abstract class Behavior
     {
         /// <summary>
+        /// When overridden in a derived class, initializes a new instance of
+        /// the <see cref="Behavior"/> class using the specified user name.
+        /// </summary>
+        /// <param name="userName">The user name of the bot.</param>
+        protected Behavior(string userName)
+        {
+            UserName = userName;
+        }
+
+        /// <summary>
+        /// Gets the name of the user the bot is running as.
+        /// </summary>
+        public string UserName { get; }
+
+        /// <summary>
         /// When overridden in a derived class, determines the bot's response to
         /// the specified message.
         /// </summary>

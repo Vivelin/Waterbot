@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{01BCD9FF-1830-4F68-B170-8DD45F071CD3}</ProjectGuid>
+    <ProjectGuid>{E2301A6F-EA4F-4BBE-AD66-A7DB20B8C5BE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Waterbot</RootNamespace>
-    <AssemblyName>Waterbot</AssemblyName>
+    <RootNamespace>Waterbot.Common</RootNamespace>
+    <AssemblyName>Waterbot.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -20,9 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Waterbot.XML</DocumentationFile>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>BasicDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,29 +32,17 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Behaviors\Behavior.cs" />
-    <Compile Include="Behaviors\DefaultBehavior.cs" />
-    <Compile Include="Behaviors\Kusogechan.cs" />
-    <Compile Include="Waterbot.cs" />
+    <Compile Include="CollectionUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Kappa\Kappa.csproj">
-      <Project>{8344e526-df88-47b4-9da6-9865d29d3a60}</Project>
-      <Name>Kappa</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Waterbot.Common\Waterbot.Common.csproj">
-      <Project>{e2301a6f-ea4f-4bbe-ad66-a7db20b8c5be}</Project>
-      <Name>Waterbot.Common</Name>
-    </ProjectReference>
+    <Compile Include="StringUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

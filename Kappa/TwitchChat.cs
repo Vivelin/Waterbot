@@ -10,7 +10,7 @@ namespace Kappa
     /// <summary>
     /// Represents a client that communicates with Twitch chat.
     /// </summary>
-    public class TwitchClient : IDisposable
+    public class TwitchChat : IDisposable
     {
         private readonly EndPoint twitchEP = new DnsEndPoint("irc.twitch.tv", 6667);
         private TaskCompletionSource<bool> connectTask;
@@ -18,10 +18,10 @@ namespace Kappa
         private bool isDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TwitchClient"/> class,
+        /// Initializes a new instance of the <see cref="TwitchChat"/> class,
         /// using the specified user name and OAuth key.
         /// </summary>
-        public TwitchClient()
+        public TwitchChat()
         {
             IrcClient = new StandardIrcClient()
             {
@@ -116,8 +116,7 @@ namespace Kappa
         }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="TwitchClient"/>
-        /// object.
+        /// Releases all resources used by the <see cref="TwitchChat"/> object.
         /// </summary>
         public void Dispose()
         {
@@ -138,8 +137,7 @@ namespace Kappa
         }
 
         /// <summary>
-        /// Releases all resources used by the <see cref="TwitchClient"/>
-        /// object.
+        /// Releases all resources used by the <see cref="TwitchChat"/> object.
         /// </summary>
         /// <param name="disposing">
         /// Indicates whether to release managed resources.

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Waterbot.Common;
 
 namespace Kappa
 {
@@ -11,6 +13,9 @@ namespace Kappa
     /// </summary>
     public class ChatMessage : Message
     {
+        private string contents;
+        private string normalizedContents;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
         /// </summary>
@@ -41,7 +46,7 @@ namespace Kappa
                     "A chat message should always contain at least two parameters.",
                     nameof(parameters));
 
-            Channel = TwitchUtil.UnescapeChannelName(parameters[0]);
+            Channel = IrcUtil.UnescapeChannelName(parameters[0]);
             Contents = parameters[1];
             DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
         }
@@ -54,7 +59,15 @@ namespace Kappa
         /// <summary>
         /// Gets the contents of the chat message.
         /// </summary>
-        public string Contents { get; }
+        public string Contents
+        {
+            get { return contents; }
+            protected set
+            {
+                contents = value;
+                normalizedContents = StringUtils.Normalize(value);
+            }
+        }
 
         /// <summary>
         /// Gets the user's display name.
@@ -70,7 +83,7 @@ namespace Kappa
             Command = Commands.PRIVMSG;
 
             Parameters.Clear();
-            Parameters.Add(TwitchUtil.EscapeChannelName(Channel));
+            Parameters.Add(IrcUtil.EscapeChannelName(Channel));
             Parameters.Add(Contents);
 
             return base.ConstructCommand();
@@ -100,10 +113,43 @@ namespace Kappa
         /// <returns>A new <see cref="ChatMessage"/> object.</returns>
         public ChatMessage CreateResponse(string text, bool mention)
         {
-            if (mention && !text.Contains(UserName, ignoreCase: true))
+            if (mention && !Mentions(UserName))
                 text = $"@{DisplayName} {text}";
 
             return new ChatMessage(Channel, text);
+        }
+
+        /// <summary>
+        /// Indicates whether the specified word is mentioned in this message.
+        /// </summary>
+        /// <param name="value">The word to seek.</param>
+        /// <returns>
+        /// <c>true</c> if the word is mentioned; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Mentions(string value)
+        {
+            value = Regex.Escape(StringUtils.Normalize(value));
+            return Regex.IsMatch(normalizedContents, $"\\b{value}\\b", RegexOptions.IgnoreCase);
+        }
+
+        /// <summary>
+        /// Indicates whether any of the specified words are mentioned in this
+        /// message.
+        /// </summary>
+        /// <param name="values">A list of words to seek.</param>
+        /// <returns>
+        /// <c>true</c> if any of the words are mentioned; otherwise,
+        /// <c>false</c>.
+        /// </returns>
+        public bool MentionsAny(IEnumerable<string> values)
+        {
+            foreach (var value in values)
+            {
+                if (Mentions(value))
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>

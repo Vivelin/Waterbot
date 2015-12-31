@@ -31,7 +31,7 @@ namespace Waterbot
         /// </summary>
         public Waterbot()
         {
-            TwitchClient = new TwitchClient();
+            TwitchClient = new TwitchChat();
             TwitchClient.Disconnected += TwitchClient_Disconnected;
             TwitchClient.MessageReceived += TwitchClient_MessageReceived;
         }
@@ -54,7 +54,7 @@ namespace Waterbot
             get
             {
                 if (behavior == null)
-                    behavior = GetBehavior();
+                    behavior = CreateBehavior();
                 return behavior;
             }
             set { behavior = value; }
@@ -79,7 +79,7 @@ namespace Waterbot
         /// Gets the <see cref="TwitchClient"/> object used to communicate with
         /// Twitch chat.
         /// </summary>
-        protected TwitchClient TwitchClient { get; }
+        protected TwitchChat TwitchClient { get; }
 
         /// <summary>
         /// Releases all resources used by the <see cref="Waterbot"/> object.
@@ -118,6 +118,23 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Gets a new instance of the behavior appropiate for this instance.
+        /// </summary>
+        /// <returns>A new <see cref="Behavior"/> object.</returns>
+        protected virtual Behavior CreateBehavior()
+        {
+            switch (UserName.ToLower())
+            {
+                case "kusogechan":
+                    return new Behaviors.Kusogechan(UserName);
+
+                default:
+                    Trace.WriteLine($"No behavior specified for {UserName}, falling back to default behavior", "WARNING");
+                    return new DefaultBehavior(UserName);
+            }
+        }
+
+        /// <summary>
         /// Releases all resources used by the <see cref="Waterbot"/> object.
         /// </summary>
         /// <param name="disposing">
@@ -136,24 +153,6 @@ namespace Waterbot
                 isDisposed = true;
             }
         }
-
-        /// <summary>
-        /// Gets a new instance of the behavior appropiate for this instance.
-        /// </summary>
-        /// <returns>A new <see cref="Behavior"/> object.</returns>
-        protected virtual Behavior GetBehavior()
-        {
-            switch (UserName.ToLower())
-            {
-                case "kusogechan":
-                    return new Behaviors.Kusogechan();
-
-                default:
-                    Trace.WriteLine($"No behavior specified for {UserName}, falling back to default behavior", "WARNING");
-                    return new DefaultBehavior();
-            }
-        }
-
         /// <summary>
         /// Raises the <see cref="MessageReceived"/> event.
         /// </summary>

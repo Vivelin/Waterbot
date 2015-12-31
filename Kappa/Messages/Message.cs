@@ -166,7 +166,7 @@ namespace Kappa
         /// <returns>A string containing the IRC message to send.</returns>
         public virtual string ConstructCommand()
         {
-            return TwitchUtil.FormatMessage(Command, Parameters);
+            return IrcUtil.FormatMessage(Command, Parameters);
         }
 
         /// <summary>
