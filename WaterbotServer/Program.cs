@@ -76,6 +76,12 @@ namespace Waterbot.WaterbotServer
 
         private static void Waterbot_MessageReceived(object sender, ChatMessageEventArgs e)
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(e.Message.Channel);
+            Console.Write("] ");
+
+            Console.ResetColor();
             Console.Write(e.Message.DisplayName);
             Console.Write(": ");
             Console.WriteLine(e.Message.Contents);
@@ -83,6 +89,11 @@ namespace Waterbot.WaterbotServer
 
         private static void Waterbot_MessageSent(object sender, ChatMessageEventArgs e)
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(e.Message.Channel);
+            Console.Write("] ");
+
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write(e.Message.DisplayName);
             Console.Write(": ");
