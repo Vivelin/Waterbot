@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Waterbot.Common
 {
@@ -11,32 +8,6 @@ namespace Waterbot.Common
     /// </summary>
     public static class CollectionUtils
     {
-        /// <summary>
-        /// Returns a random element from the list.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in the list.</typeparam>
-        /// <param name="list">The list to return an element from.</param>
-        /// <returns>A random element from the list.</returns>
-        public static T Sample<T>(this IList<T> list)
-        {
-            var rng = new Random();
-            return list.Sample(rng);
-        }
-
-        /// <summary>
-        /// Returns a random element from the list using the specified random
-        /// number generator.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in the list.</typeparam>
-        /// <param name="list">The list to return an element from.</param>
-        /// <param name="rng">The random number generator to use.</param>
-        /// <returns>A random element from the list.</returns>
-        public static T Sample<T>(this IList<T> list, Random rng)
-        {
-            var i = rng.Next(0, list.Count);
-            return list[i];
-        }
-
         /// <summary>
         /// Gets the value that is associated with the specified key, or the
         /// default value for <typeparamref name="TValue"/>.
@@ -65,6 +36,32 @@ namespace Waterbot.Common
             TValue value = default(TValue);
             dictionary.TryGetValue(key, out value);
             return value;
+        }
+
+        /// <summary>
+        /// Returns a random element from the list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the list.</typeparam>
+        /// <param name="list">The list to return an element from.</param>
+        /// <returns>A random element from the list.</returns>
+        public static T Sample<T>(this IList<T> list)
+        {
+            var rng = new Random();
+            return list.Sample(rng);
+        }
+
+        /// <summary>
+        /// Returns a random element from the list using the specified random
+        /// number generator.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the list.</typeparam>
+        /// <param name="list">The list to return an element from.</param>
+        /// <param name="rng">The random number generator to use.</param>
+        /// <returns>A random element from the list.</returns>
+        public static T Sample<T>(this IList<T> list, Random rng)
+        {
+            var i = rng.Next(0, list.Count);
+            return list[i];
         }
     }
 }
