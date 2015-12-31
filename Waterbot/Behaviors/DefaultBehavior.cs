@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,13 +30,15 @@ namespace Waterbot
 
             Farewells = new List<string>()
             {
-                "Bye", "See ya", "Cya"
+                "I should go.", "I'll be going now.", "Bye!", "See ya!", "Cave Johnson, we're done here."
             };
 
             DefaultResponses = new List<string>()
             {
                 "I don't get it.", "What?", "What is it?", "What do you want?", "What do you want?", "Are you talking to me?", "Did you say something?"
             };
+
+            HelpText = "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot";
         }
 
         /// <summary>
@@ -53,6 +56,11 @@ namespace Waterbot
         /// Gets a list of greetings to respond to and with.
         /// </summary>
         public IList<string> Greetings { get; }
+
+        /// <summary>
+        /// Gets the bot's response to help or info commands.
+        /// </summary>
+        public string HelpText { get; }
 
         /// <summary>
         /// Gets a random number generator for this instance.
@@ -89,6 +97,21 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Returns a message that greets the user in response to a message.
+        /// </summary>
+        /// <param name="message">The message to respond to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with.
+        /// </returns>
+        public virtual ChatMessage Greet(ChatMessage message)
+        {
+            var greeting = Greetings.Sample(RNG);
+            var text = $"{greeting} {message.DisplayName}!";
+            return message.CreateResponse(text);
+        }
+
+        /// <summary>
         /// Determines the bot's default response to the specified message.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
@@ -96,7 +119,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public override ChatMessage GetResponse(ChatMessage message)
+        protected override ChatMessage GetResponse(ChatMessage message)
         {
             if (message.Mentions(UserName))
             {
@@ -110,18 +133,30 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Returns a message that greets the user in response to a message.
+        /// Determines the bot's response to chat commands.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
+        /// <param name="command">The command to handle.</param>
         /// <returns>
         /// A <see cref="ChatMessage"/> object that represents the message to
-        /// respond with.
+        /// respond with, or <c>null</c>.
         /// </returns>
-        public virtual ChatMessage Greet(ChatMessage message)
+        protected override ChatMessage HandleCommand(ChatMessage message, string command)
         {
-            var greeting = Greetings.Sample(RNG);
-            var text = $"{greeting} {message.DisplayName}!";
-            return message.CreateResponse(text);
+            switch (command.ToLowerInvariant())
+            {
+                case "help":
+                case "info":
+                case "botinfo":
+                    if (!string.IsNullOrEmpty(HelpText))
+                        return message.CreateResponse(HelpText);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return null;
         }
     }
 }

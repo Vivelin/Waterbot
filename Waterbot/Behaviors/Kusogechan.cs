@@ -21,8 +21,6 @@ namespace Waterbot.Behaviors
         public Kusogechan(string userName) : base(userName)
         {
             DefaultResponses.Add("Where are my video games?");
-
-            Farewells.Clear();
             Farewells.Add("See ya nerds!");
         }
 
@@ -34,7 +32,7 @@ namespace Waterbot.Behaviors
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public override ChatMessage GetResponse(ChatMessage message)
+        protected override ChatMessage GetResponse(ChatMessage message)
         {
             string[] echo = { "JediRosh", "AWOOOO", "Poi!" };
             foreach (var item in echo)
@@ -45,6 +43,20 @@ namespace Waterbot.Behaviors
 
             // Fall back to default behavior
             return base.GetResponse(message);
+        }
+
+        /// <summary>
+        /// Determines Kusoge-chan's response to chat commands.
+        /// </summary>
+        /// <param name="message">The message to respond to.</param>
+        /// <param name="command">The command to handle.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        {
+            return base.HandleCommand(message, command);
         }
     }
 }

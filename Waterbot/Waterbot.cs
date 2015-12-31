@@ -224,7 +224,7 @@ namespace Waterbot
                 return;
             }
 
-            var response = Behavior.GetResponse(e.Message);
+            var response = Behavior.ProcessMessage(e.Message);
             if (response != null)
             {
                 await TwitchChat.SendMessage(response);
