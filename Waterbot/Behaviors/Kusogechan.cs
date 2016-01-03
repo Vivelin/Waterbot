@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Kappa;
 
 namespace Waterbot.Behaviors
@@ -10,14 +11,18 @@ namespace Waterbot.Behaviors
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Kusogechan"/> class
-        /// using the specified user name.
+        /// using the specified configuration.
         /// </summary>
-        /// <param name="userName">The user name of the bot.</param>
-        public Kusogechan(string userName) : base(userName)
+        /// <param name="config">The current configuration.</param>
+        public Kusogechan(Configuration config) : base(config)
         {
-            DefaultResponses.Add("Where are my video games?");
-            Farewells.Add("See ya nerds!");
+            Echo = Config.Behavior["Echo"] ?? new List<string> { "JediRosh", "AWOOOO", "Poi!" };
         }
+
+        /// <summary>
+        /// Gets a list of words to echo.
+        /// </summary>
+        public IList<string> Echo { get; }
 
         /// <summary>
         /// Determines Kusoge-chan's response to the specified message.
@@ -29,10 +34,9 @@ namespace Waterbot.Behaviors
         /// </returns>
         protected override ChatMessage GetResponse(ChatMessage message)
         {
-            string[] echo = { "JediRosh", "AWOOOO", "Poi!" };
-            foreach (var item in echo)
+            foreach (var item in Echo)
             {
-                if (message.Contents.Contains(item))
+                if (message.Mentions(item))
                     return message.CreateResponse(item);
             }
 

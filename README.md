@@ -9,10 +9,11 @@ where `username` is the name of the user the bot is connected as.
 
 # Quick start
 1. Download the latest release or get the source and build it with Visual Studio;
-2. Start `WaterbotServer.exe` with the following arguments:
-   - `--user=username`: The username of the Twitch account for the bot to run as;
-   - `--key=oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`: The OAuth key for the Twitch account which can be generated at <https://twitchapps.com/tmi/>;
-   - The channel names to join. If no channels are specified, the bot will run in the channel of the account is it running as.
+2. Start `WaterbotServer.exe` from a command prompt. This should tell you that a default configuration has been created. Open this file in a text editor and modify at least the following values:
 
-   `> WaterbotServer --user=username --key=oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx channel1 channel2 [...]`
-3. Press Ctrl+C to leave all channels and disconnect from Twitch chat.
+   - `UserName`: The username of the Twitch account for the bot to run as;
+   - `OAuthToken`: The OAuth token for the Twitch account which can be generated at <https://twitchapps.com/tmi/>;
+   - `DefaultChannels`: The channels to join upon starting Waterbot. Waterbot will always join the its own channel (specified by `UserName`) and any channels specified on the command line.
+
+3. Start `WaterbotServer.exe` again. It should connect to Twitch and join the channels you specified;
+4. Press Ctrl+C to leave all channels and disconnect from Twitch chat.

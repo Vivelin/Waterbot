@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -64,15 +65,11 @@ namespace Kappa
         /// </summary>
         /// <param name="userName">The user name to connect as.</param>
         /// <param name="key">The OAuth key for the specified user.</param>
-        /// <param name="channels">
-        /// An array of strings containing the names of the channels to
-        /// initially connect to.
-        /// </param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task ConnectAsync(string userName, string key, params string[] channels)
+        public async Task ConnectAsync(string userName, string key)
         {
             connectTask = new TaskCompletionSource<bool>();
 
@@ -90,14 +87,6 @@ namespace Kappa
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
-
-            foreach (var channel in channels)
-            {
-                IrcClient.SendRawMessage("JOIN #" + channel);
-
-                // JOINs are rate-limited at 50 per 15 seconds => 3/s
-                await Task.Delay(333);
-            }
         }
 
         /// <summary>
@@ -126,6 +115,46 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Joins the specified channel asynchronously.
+        /// </summary>
+        /// <param name="channel">The names of the channel to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(string channel)
+        {
+            sendMessageTask = new TaskCompletionSource<bool>();
+
+            IrcClient.SendRawMessage("JOIN " + IrcUtil.EscapeChannelName(channel));
+            await sendMessageTask.Task;
+
+            sendMessageTask = null;
+        }
+
+        /// <summary>
+        /// Joins the specified channels asynchronously.
+        /// </summary>
+        /// <param name="channels">
+        /// A collection of strings containing the names of the channels to
+        /// connect to.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(IEnumerable<string> channels)
+        {
+            foreach (var channel in channels)
+            {
+                await JoinAsync(channel);
+
+                // JOINs are rate-limited at 50 per 15 seconds => 3/s
+                await Task.Delay(333);
+            }
+        }
+
+        /// <summary>
         /// Sends a chat message to the specified channel.
         /// </summary>
         /// <param name="message">The chat message to send.</param>
@@ -139,6 +168,7 @@ namespace Kappa
                 IrcClient.SendRawMessage(raw);
                 await sendMessageTask.Task;
 
+                sendMessageTask = null;
                 message.UserName = UserName;
                 message.DisplayName = UserName;
             }

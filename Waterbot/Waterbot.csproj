@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -47,6 +51,9 @@
     <Compile Include="Behaviors\DefaultBehavior.cs" />
     <Compile Include="Behaviors\Kusogechan.cs" />
     <Compile Include="Behaviors\NoBehavior.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Config\BehaviorPreferences.cs" />
+    <Compile Include="Config\Credentials.cs" />
     <Compile Include="Waterbot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -59,6 +66,9 @@
       <Project>{e2301a6f-ea4f-4bbe-ad66-a7db20b8c5be}</Project>
       <Name>Waterbot.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
