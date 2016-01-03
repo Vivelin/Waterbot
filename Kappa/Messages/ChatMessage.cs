@@ -100,6 +100,19 @@ namespace Kappa
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is a
+        /// Twitch global moderator.
+        /// </summary>
+        public bool IsGlobalMod
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "global_mod";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
         /// moderator in the current channel.
         /// </summary>
         public bool IsMod
@@ -107,7 +120,7 @@ namespace Kappa
             get
             {
                 var userType = Tags?.Get(MessageTags.UserType);
-                return userType == "mod";
+                return userType == "mod" || userType == "global_mod";
             }
         }
 
