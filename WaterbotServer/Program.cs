@@ -98,17 +98,15 @@ namespace Waterbot.WaterbotServer
             if (config == null)
                 return;
 
-            Channels.AddRange(config.DefaultChannels);
-            if (!Channels.Contains(config.Credentials.UserName))
-                Channels.Add(config.Credentials.UserName);
-
             using (var waterbot = new Waterbot(config))
             {
                 waterbot.MessageReceived += Waterbot_MessageReceived;
                 waterbot.MessageSent += Waterbot_MessageSent;
 
-                await waterbot.StartAsync(Channels.Distinct());
+                await waterbot.StartAsync();
                 Console.WriteLine("Press Ctrl+C to stop Waterbot");
+
+                await waterbot.JoinAsync(Channels);
 
                 // Wait until Ctrl+C is pressed, then exit gracefully
                 await quitTask.Task;

@@ -109,32 +109,61 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Connects to Twitch chat and begins performing operations.
+        /// Joins the specified channel asynchronously.
+        /// </summary>
+        /// <param name="channel">The name of the channel to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(string channel)
+        {
+            await TwitchChat.JoinAsync(channel);
+            Channels.Add(channel);
+
+            var message = Behavior.GetJoinMessage(channel);
+            if (message != null)
+            {
+                await TwitchChat.SendMessage(message);
+                OnMessageSent(new ChatMessageEventArgs(message));
+            }
+        }
+
+        /// <summary>
+        /// Joins the specified channels asynchronously.
         /// </summary>
         /// <param name="channels">
-        /// A collection of strings containing the names of the channels to
-        /// initially connect to.
+        /// A collection of strings containing the channel names to join.
         /// </param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task StartAsync(IEnumerable<string> channels)
+        public async Task JoinAsync(IEnumerable<string> channels)
         {
-            await TwitchChat.ConnectAsync(Config.Credentials.UserName,
-                Config.Credentials.OAuthToken, channels);
-
             foreach (var channel in channels)
             {
-                Channels.Add(channel);
+                await JoinAsync(channel);
 
-                var message = Behavior.GetJoinMessage(channel);
-                if (message != null)
-                {
-                    await TwitchChat.SendMessage(message);
-                    OnMessageSent(new ChatMessageEventArgs(message));
-                }
+                // JOINs are rate-limited at 50 per 15 seconds => 3/s
+                await Task.Delay(333);
             }
+        }
+
+        /// <summary>
+        /// Connects to Twitch chat and begins performing operations.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task StartAsync()
+        {
+            await TwitchChat.ConnectAsync(Config.Credentials.UserName,
+                Config.Credentials.OAuthToken);
+
+            await JoinAsync(Config.Credentials.UserName);
+            await JoinAsync(Config.DefaultChannels);
         }
 
         /// <summary>
