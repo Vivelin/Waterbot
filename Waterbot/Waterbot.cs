@@ -25,19 +25,29 @@ namespace Waterbot
     public class Waterbot : IDisposable
     {
         private Behavior behavior = null;
+        private Configuration currentConfig = null;
         private bool isDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Waterbot"/> class.
+        /// Initializes a new instance of the <see cref="Waterbot"/> class using
+        /// the specified configuration.
         /// </summary>
-        public Waterbot()
+        /// <param name="config">The configuration to use.</param>
+        public Waterbot(Configuration config)
         {
+            currentConfig = config;
+
             TwitchChat = new TwitchChat();
             TwitchChat.Disconnected += TwitchChat_Disconnected;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
 
             Channels = new List<string>();
         }
+
+        /// <summary>
+        /// Occurs when the current configuration has changed.
+        /// </summary>
+        public event EventHandler ConfigChanged;
 
         /// <summary>
         /// Occurs when a chat message has been received.
@@ -69,19 +79,20 @@ namespace Waterbot
         public IList<string> Channels { get; }
 
         /// <summary>
-        /// Gets or sets the OAuth key used in place of a password when
-        /// connecting to Twitch chat.
+        /// Gets or sets the configuration to use.
         /// </summary>
-        /// <remarks>
-        /// An OAuth key may be generated at https://twitchapps.com/tmi/.
-        /// </remarks>
-        public string OAuthKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user name that the bot identifies itself as and
-        /// which is used to connect to Twitch chat
-        /// </summary>
-        public string UserName { get; set; }
+        public Configuration Config
+        {
+            get { return currentConfig; }
+            set
+            {
+                if (currentConfig != value)
+                {
+                    currentConfig = value;
+                    OnConfigChanged(EventArgs.Empty);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="TwitchChat"/> object used to communicate with
@@ -101,16 +112,17 @@ namespace Waterbot
         /// Connects to Twitch chat and begins performing operations.
         /// </summary>
         /// <param name="channels">
-        /// An array of strings containing the names of the channels to
+        /// A collection of strings containing the names of the channels to
         /// initially connect to.
         /// </param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task StartAsync(params string[] channels)
+        public async Task StartAsync(IEnumerable<string> channels)
         {
-            await TwitchChat.ConnectAsync(UserName, OAuthKey, channels);
+            await TwitchChat.ConnectAsync(Config.Credentials.UserName,
+                Config.Credentials.OAuthToken, channels);
 
             foreach (var channel in channels)
             {
@@ -153,17 +165,18 @@ namespace Waterbot
         /// <returns>A new <see cref="Behavior"/> object.</returns>
         protected virtual Behavior CreateBehavior()
         {
-            switch (UserName.ToLower())
+            var user = Config.Credentials.UserName;
+            switch (user.ToLower())
             {
                 case "kusogechan":
-                    return new Behaviors.Kusogechan(UserName);
+                    return new Behaviors.Kusogechan(user);
 
                 case "horsedrowner":
-                    return new Behaviors.NoBehavior(UserName);
+                    return new Behaviors.NoBehavior(user);
 
                 default:
-                    Trace.WriteLine($"No behavior specified for {UserName}, falling back to default behavior", "WARNING");
-                    return new DefaultBehavior(UserName);
+                    Trace.WriteLine($"No behavior specified for {user}, falling back to default behavior", "WARNING");
+                    return new DefaultBehavior(user);
             }
         }
 
@@ -185,6 +198,17 @@ namespace Waterbot
 
                 isDisposed = true;
             }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="ConfigChanged"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// An <see cref="EventArgs"/> object providing data for the event.
+        /// </param>
+        protected virtual void OnConfigChanged(EventArgs args)
+        {
+            ConfigChanged?.Invoke(this, args);
         }
 
         /// <summary>
@@ -221,7 +245,7 @@ namespace Waterbot
         {
             OnMessageReceived(e);
 
-            if (string.Compare(e.Message.UserName, UserName, true) == 0)
+            if (string.Compare(e.Message.UserName, Config.Credentials.UserName, true) == 0)
             {
                 Trace.WriteLine("I think I'm talking to myself.");
                 return;

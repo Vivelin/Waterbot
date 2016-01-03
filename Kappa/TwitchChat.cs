@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -65,14 +66,14 @@ namespace Kappa
         /// <param name="userName">The user name to connect as.</param>
         /// <param name="key">The OAuth key for the specified user.</param>
         /// <param name="channels">
-        /// An array of strings containing the names of the channels to
-        /// initially connect to.
+        /// A collection of strings containing the names of the channels to
+        /// connect to.
         /// </param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task ConnectAsync(string userName, string key, params string[] channels)
+        public async Task ConnectAsync(string userName, string key, IEnumerable<string> channels)
         {
             connectTask = new TaskCompletionSource<bool>();
 
