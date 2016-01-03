@@ -12,5 +12,15 @@ namespace Kappa
         /// your username").
         /// </summary>
         public const string DisplayName = "display-name";
+
+        /// <summary>
+        /// Indicates whether the user is subbed.
+        /// </summary>
+        public const string Subscriber = "subscriber";
+
+        /// <summary>
+        /// Indicates the type of user (mod).
+        /// </summary>
+        public const string UserType = "user-type";
     }
 }

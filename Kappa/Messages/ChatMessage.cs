@@ -45,7 +45,9 @@ namespace Kappa
 
             Channel = IrcUtil.UnescapeChannelName(parameters[0]);
             Contents = parameters[1];
+
             DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
+            if (DisplayName.Length == 0) DisplayName = UserName;
         }
 
         /// <summary>
@@ -70,6 +72,70 @@ namespace Kappa
         /// Gets the user's display name.
         /// </summary>
         public string DisplayName { get; protected internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
+        /// Twitch admin.
+        /// </summary>
+        public bool IsAdmin
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "admin";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is the
+        /// broadcaster.
+        /// </summary>
+        public bool IsBroadcaster
+        {
+            get
+            {
+                return string.Compare(UserName, Channel, true) == 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
+        /// Twitch global moderator.
+        /// </summary>
+        public bool IsGlobalMod
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "global_mod";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is a
+        /// moderator in the current channel.
+        /// </summary>
+        public bool IsMod
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "mod" || userType == "global_mod";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is
+        /// subscribed to the current channel.
+        /// </summary>
+        public bool IsSub
+        {
+            get
+            {
+                var subscriber = Tags?.Get(MessageTags.Subscriber);
+                return subscriber == "1";
+            }
+        }
 
         /// <summary>
         /// Gets the raw IRC command for sending this message.

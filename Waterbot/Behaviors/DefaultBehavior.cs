@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Kappa;
 using Waterbot.Common;
 
@@ -12,51 +11,13 @@ namespace Waterbot
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultBehavior"/>
-        /// class using the specified user name.
+        /// class using the specified configuration.
         /// </summary>
-        /// <param name="userName">The user name of the bot.</param>
-        public DefaultBehavior(string userName) : base(userName)
+        /// <param name="config">The current configuration.</param>
+        public DefaultBehavior(Configuration config) : base(config)
         {
             RNG = new Random();
-
-            Greetings = new List<string>()
-            {
-                "Hey", "Hi", "Yo", "Hej", "'sup", "Hello", "Hallo", "Hoi", "Hiya", "What's up", "Whatsup", "HeyGuys"
-            };
-
-            Farewells = new List<string>()
-            {
-                "I should go.", "I'll be going now.", "Bye!", "See ya!", "Cave Johnson, we're done here."
-            };
-
-            DefaultResponses = new List<string>()
-            {
-                "I don't get it.", "What?", "What is it?", "What do you want?", "What do you want?", "Are you talking to me?", "Did you say something?"
-            };
-
-            HelpText = "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot";
         }
-
-        /// <summary>
-        /// Gets a list of possible responses when the bot is mentioned but no
-        /// other response is available.
-        /// </summary>
-        public IList<string> DefaultResponses { get; }
-
-        /// <summary>
-        /// Gets a list of possible responses when the bot is leaving a channel.
-        /// </summary>
-        public IList<string> Farewells { get; }
-
-        /// <summary>
-        /// Gets a list of greetings to respond to and with.
-        /// </summary>
-        public IList<string> Greetings { get; }
-
-        /// <summary>
-        /// Gets the bot's response to help or info commands.
-        /// </summary>
-        public string HelpText { get; }
 
         /// <summary>
         /// Gets a random number generator for this instance.
@@ -73,7 +34,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetJoinMessage(string channel)
         {
-            var greeting = Greetings.Sample(RNG);
+            var greeting = Config.Behavior.Greetings.Sample(RNG);
             var text = $"{greeting} chat!";
             return new ChatMessage(channel, text);
         }
@@ -88,7 +49,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetPartMessage(string channel)
         {
-            var farewell = Farewells.Sample(RNG);
+            var farewell = Config.Behavior.Farewells.Sample(RNG);
             return new ChatMessage(channel, farewell);
         }
 
@@ -102,7 +63,7 @@ namespace Waterbot
         /// </returns>
         public virtual ChatMessage Greet(ChatMessage message)
         {
-            var greeting = Greetings.Sample(RNG);
+            var greeting = Config.Behavior.Greetings.Sample(RNG);
             var text = $"{greeting} {message.DisplayName}!";
             return message.CreateResponse(text);
         }
@@ -119,10 +80,11 @@ namespace Waterbot
         {
             if (message.Mentions(UserName))
             {
-                if (message.MentionsAny(Greetings))
+                if (message.MentionsAny(Config.Behavior.Greetings))
                     return Greet(message);
 
-                return message.CreateResponse(DefaultResponses.Sample(RNG), true);
+                var response = Config.Behavior.DefaultResponses.Sample(RNG);
+                return message.CreateResponse(response, true);
             }
 
             return null;
@@ -144,8 +106,8 @@ namespace Waterbot
                 case "help":
                 case "info":
                 case "botinfo":
-                    if (!string.IsNullOrEmpty(HelpText))
-                        return message.CreateResponse(HelpText);
+                    if (!string.IsNullOrEmpty(Config.Behavior.HelpText))
+                        return message.CreateResponse(Config.Behavior.HelpText);
                     break;
 
                 default:

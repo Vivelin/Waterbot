@@ -13,14 +13,14 @@ namespace Waterbot
     {
         /// <summary>
         /// When overridden in a derived class, initializes a new instance of
-        /// the <see cref="Behavior"/> class using the specified user name.
+        /// the <see cref="Behavior"/> class using the specified configuration.
         /// </summary>
-        /// <param name="userName">The user name of the bot.</param>
-        protected Behavior(string userName)
+        /// <param name="config">The current configuration.</param>
+        protected Behavior(Configuration config)
         {
-            UserName = userName;
+            Config = config;
 
-            var user = Regex.Escape(userName);
+            var user = Regex.Escape(UserName);
             CommandPatterns = new List<Regex>()
             {
                 new Regex($"^@?{user}\\s+!?(?<command>.+)$", RegexOptions.IgnoreCase), // @username command
@@ -30,9 +30,17 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Gets the name of the user the bot is running as.
+        /// Gets the current configuration.
         /// </summary>
-        public string UserName { get; }
+        public Configuration Config { get; }
+
+        /// <summary>
+        /// Gets the name of the user the bot responds to.
+        /// </summary>
+        public string UserName
+        {
+            get { return Config.Credentials.UserName; }
+        }
 
         /// <summary>
         /// Gets a list of regular expressions used to parse incoming messages
