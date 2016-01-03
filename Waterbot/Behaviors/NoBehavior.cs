@@ -10,10 +10,10 @@ namespace Waterbot.Behaviors
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="NoBehavior"/> class
-        /// using the specified user name..
+        /// using the specified configuration.
         /// </summary>
-        /// <param name="userName">The user name of the bot.</param>
-        public NoBehavior(string userName) : base(userName)
+        /// <param name="config">The current configuration.</param>
+        public NoBehavior(Configuration config) : base(config)
         {
         }
 

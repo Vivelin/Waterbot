@@ -198,14 +198,14 @@ namespace Waterbot
             switch (user.ToLower())
             {
                 case "kusogechan":
-                    return new Behaviors.Kusogechan(user);
+                    return new Behaviors.Kusogechan(Config);
 
                 case "horsedrowner":
-                    return new Behaviors.NoBehavior(user);
+                    return new Behaviors.NoBehavior(Config);
 
                 default:
                     Trace.WriteLine($"No behavior specified for {user}, falling back to default behavior", "WARNING");
-                    return new DefaultBehavior(user);
+                    return new DefaultBehavior(Config);
             }
         }
 

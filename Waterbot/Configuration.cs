@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Waterbot.Config;
 
@@ -17,11 +13,11 @@ namespace Waterbot
     public class Configuration
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Configuration"/> class
-        /// using default values.
+        /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
         public Configuration()
         {
+            Behavior = new BehaviorPreferences();
             Credentials = new Credentials();
             DefaultChannels = new List<string>();
         }
@@ -39,6 +35,12 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Gets or sets an object that specifies preferences for the bot's
+        /// behavior.
+        /// </summary>
+        public BehaviorPreferences Behavior { get; set; }
+
+        /// <summary>
         /// Gets or sets the credentials used for accessing Twitch chat and the
         /// Twitch API.
         /// </summary>
@@ -47,7 +49,10 @@ namespace Waterbot
         /// <summary>
         /// Gets a list of channels to connect to on startup.
         /// </summary>
-        public IList<string> DefaultChannels { get; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public IList<string> DefaultChannels { get; set; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="Configuration"/> class from
@@ -105,7 +110,13 @@ namespace Waterbot
             var settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+
+                // Always create new objects so that our default values of
+                // complex types are also overwritten with their actual values.
+                // Unfortunately, this doesn't call Clear() on collections, so
+                // collections need to have a setter.
+                ObjectCreationHandling = ObjectCreationHandling.Replace
             };
 
             return JsonConvert.DeserializeObject<Configuration>(contents, settings);

@@ -52,6 +52,7 @@
     <Compile Include="Behaviors\Kusogechan.cs" />
     <Compile Include="Behaviors\NoBehavior.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Config\BehaviorPreferences.cs" />
     <Compile Include="Config\Credentials.cs" />
     <Compile Include="Waterbot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
