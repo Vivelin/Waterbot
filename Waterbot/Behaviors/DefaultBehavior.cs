@@ -103,6 +103,9 @@ namespace Waterbot
         {
             switch (command.ToLowerInvariant())
             {
+                case "uptime":
+                    return Uptime(message);
+
                 default:
                     if (Config.Behavior.StaticCommands.ContainsKey(command))
                     {
@@ -113,6 +116,26 @@ namespace Waterbot
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines the bot's response to the "uptime" command.
+        /// </summary>
+        /// <param name="message">The message to respond to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected virtual ChatMessage Uptime(ChatMessage message)
+        {
+            var channel = message.Channel;
+
+            var startTime = DateTime.MinValue;
+            var elapsedTime = (DateTime.Now - startTime).ToRelativeTimeString();
+
+            var responseFormat = "{0} started streaming {1} (since {2:g})";
+            var response = string.Format(responseFormat, channel, elapsedTime, startTime);
+            return message.CreateResponse(response);
         }
     }
 }
