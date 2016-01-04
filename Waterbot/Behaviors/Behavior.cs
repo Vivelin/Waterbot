@@ -95,6 +95,9 @@ namespace Waterbot
             var command = GetCommand(message);
             if (!string.IsNullOrEmpty(command))
             {
+                if (Config.Behavior.CommandAliases.ContainsKey(command))
+                    command = Config.Behavior.CommandAliases[command];
+
                 var response = HandleCommand(message, command);
                 if (response != null)
                     return response;

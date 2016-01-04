@@ -103,14 +103,12 @@ namespace Waterbot
         {
             switch (command.ToLowerInvariant())
             {
-                case "help":
-                case "info":
-                case "botinfo":
-                    if (!string.IsNullOrEmpty(Config.Behavior.HelpText))
-                        return message.CreateResponse(Config.Behavior.HelpText);
-                    break;
-
                 default:
+                    if (Config.Behavior.StaticCommands.ContainsKey(command))
+                    {
+                        var response = Config.Behavior.StaticCommands[command];
+                        return message.CreateResponse(response);
+                    }
                     break;
             }
 

@@ -15,6 +15,7 @@ namespace Waterbot.Config
         /// </summary>
         public BehaviorPreferences()
         {
+            Properties = new Dictionary<string, IList<string>>();
             DefaultResponses = new List<string>()
             {
                 "I don't get it.", "What?", "What is it?", "What do you want?",
@@ -31,9 +32,24 @@ namespace Waterbot.Config
                 "Hey", "Hi", "Yo", "Hej", "'sup", "Hello", "Hallo", "Hoi", "Hiya",
                 "What's up", "Whatsup", "HeyGuys"
             };
-            HelpText = "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot";
-            Properties = new Dictionary<string, IList<string>>();
+            StaticCommands = new Dictionary<string, string>
+            {
+                { "help", "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot" }
+            };
+            CommandAliases = new Dictionary<string, string>
+            {
+                { "botinfo", "help" }
+            };
         }
+
+        /// <summary>
+        /// Gets or sets a dictionary that maps command aliases to other
+        /// commands.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public IDictionary<string, string> CommandAliases { get; set; }
 
         /// <summary>
         /// Gets or sets a list of possible responses when the bot is mentioned
@@ -62,17 +78,20 @@ namespace Waterbot.Config
         public IList<string> Greetings { get; set; }
 
         /// <summary>
-        /// Gets or sets the bot's response to help or info commands.
-        /// </summary>
-        public string HelpText { get; set; }
-
-        /// <summary>
         /// Gets or sets a dictionary containing custom properties.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
         public IDictionary<string, IList<string>> Properties { get; set; }
+
+        /// <summary>
+        /// Gets or sets a dictionary that maps commands to static responses.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public IDictionary<string, string> StaticCommands { get; set; }
 
         /// <summary>
         /// Gets the custom property with the specified key.
