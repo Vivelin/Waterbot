@@ -126,6 +126,19 @@ namespace Kappa
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is
+        /// part of the Twitch staff.
+        /// </summary>
+        public bool IsStaff
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "staff";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is
         /// subscribed to the current channel.
         /// </summary>
         public bool IsSub
