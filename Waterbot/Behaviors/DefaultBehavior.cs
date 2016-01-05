@@ -128,13 +128,13 @@ namespace Waterbot
         /// </returns>
         protected virtual ChatMessage Uptime(ChatMessage message)
         {
-            var channel = message.Channel;
+            var stream = message.Channel.GetStream().Result;
 
-            var startTime = DateTime.MinValue;
+            var startTime = stream.Started;
             var elapsedTime = startTime.ToRelativeTimeString();
 
-            var responseFormat = "{0} started streaming {1} (since {2:g})";
-            var response = string.Format(responseFormat, channel, elapsedTime, startTime);
+            var response = string.Format("{0} started streaming {1}",
+                message.Channel, elapsedTime);
             return message.CreateResponse(response);
         }
     }
