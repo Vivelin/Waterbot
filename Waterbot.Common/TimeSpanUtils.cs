@@ -12,11 +12,11 @@ namespace Waterbot.Common
     public static class TimeSpanUtils
     {
         /// <summary>
-        /// Returns a string representing the time interval in words.
+        /// Returns a string representing the time interval in text.
         /// </summary>
         /// <param name="time">The <see cref="TimeSpan"/> object to use.</param>
         /// <returns>A string representation of the time interval.</returns>
-        public static string ToRelativeTimeString(this TimeSpan time)
+        public static string ToText(this TimeSpan time)
         {
             var builder = new StringBuilder();
             if (time.TotalDays >= 2)

@@ -131,7 +131,7 @@ namespace Waterbot
             var channel = message.Channel;
 
             var startTime = DateTime.MinValue;
-            var elapsedTime = (DateTime.Now - startTime).ToRelativeTimeString();
+            var elapsedTime = startTime.ToRelativeTimeString();
 
             var responseFormat = "{0} started streaming {1} (since {2:g})";
             var response = string.Format(responseFormat, channel, elapsedTime, startTime);
