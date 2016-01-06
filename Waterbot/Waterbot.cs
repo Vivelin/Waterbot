@@ -35,7 +35,8 @@ namespace Waterbot
         /// <param name="config">The configuration to use.</param>
         public Waterbot(Configuration config)
         {
-            Config = config;
+            currentConfig = config;
+            TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
             TwitchChat.Disconnected += TwitchChat_Disconnected;

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Kappa
 {
@@ -25,6 +20,7 @@ namespace Kappa
         /// <summary>
         /// Gets the address at which the API is located.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings")]
         protected override Uri ApiAddress => new Uri(apiBase, Endpoint);
 
         /// <summary>
@@ -40,7 +36,7 @@ namespace Kappa
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        protected override async Task<string> Get()
+        protected override async Task<string> PerformRequest()
         {
             using (var client = new HttpClient())
             {

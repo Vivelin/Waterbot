@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -48,6 +45,8 @@ namespace Kappa
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
+            Justification = "Calling the method two times in succession creates different results.")]
         public async Task<Stream> GetStreamAsync()
         {
             var results = new StreamResults(this);

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Kappa
@@ -34,6 +29,8 @@ namespace Kappa
         /// <summary>
         /// Gets the returned <see cref="Stream"/> object.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
+            "CA1811:AvoidUncalledPrivateCode", Justification = "Deserialized.")]
         [JsonProperty("stream")]
         public Stream Stream { get; protected set; }
 

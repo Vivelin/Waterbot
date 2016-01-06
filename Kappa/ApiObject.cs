@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -34,7 +31,7 @@ namespace Kappa
         /// </returns>
         public virtual async Task Load()
         {
-            var data = await Get();
+            var data = await PerformRequest();
             Populate(data);
 
             Loaded = DateTime.Now;
@@ -47,7 +44,7 @@ namespace Kappa
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        protected virtual async Task<string> Get()
+        protected virtual async Task<string> PerformRequest()
         {
             using (var client = new HttpClient())
             {
