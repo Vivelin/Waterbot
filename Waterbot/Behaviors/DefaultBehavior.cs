@@ -131,14 +131,21 @@ namespace Waterbot
         {
             var stream = await message.Channel.GetStreamAsync();
             if (stream == null)
-                return null;
+            {
+                var format = Config.Behavior.UptimeOfflineResponses.Sample(RNG);
+                var response = string.Format(format, message.Channel);
 
-            var startTime = stream.Started;
-            var elapsedTime = startTime.ToRelativeTimeString();
+                return message.CreateResponse(response);
+            }
+            else
+            {
+                var startTime = stream.Started;
+                var elapsedTime = startTime.ToRelativeTimeString();
 
-            var response = string.Format("{0} started streaming {1}.",
-                stream.Channel, elapsedTime);
-            return message.CreateResponse(response);
+                var response = string.Format("{0} started streaming {1}.",
+                    stream.Channel, elapsedTime);
+                return message.CreateResponse(response);
+            }
         }
     }
 }

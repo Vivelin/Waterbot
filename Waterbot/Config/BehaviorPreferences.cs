@@ -40,6 +40,10 @@ namespace Waterbot.Config
             {
                 { "botinfo", "help" }
             };
+            UptimeOfflineResponses = new List<string>
+            {
+                { "{0} is offline." }
+            };
         }
 
         /// <summary>
@@ -92,6 +96,15 @@ namespace Waterbot.Config
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
         public IDictionary<string, string> StaticCommands { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of possible responses when the uptime command is
+        /// issued while the channel is offline.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public IList<string> UptimeOfflineResponses { get; set; }
 
         /// <summary>
         /// Gets the custom property with the specified key.
