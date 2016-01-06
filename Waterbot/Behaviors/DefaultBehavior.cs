@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
 
@@ -76,18 +77,18 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override Task<ChatMessage> GetResponse(ChatMessage message)
         {
             if (message.Mentions(UserName))
             {
                 if (message.MentionsAny(Config.Behavior.Greetings))
-                    return Greet(message);
+                    return Task.FromResult(Greet(message));
 
                 var response = Config.Behavior.DefaultResponses.Sample(RNG);
-                return message.CreateResponse(response, true);
+                return Task.FromResult(message.CreateResponse(response, true));
             }
 
-            return null;
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -99,10 +100,13 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
             switch (command.ToLowerInvariant())
             {
+                case "uptime":
+                    return await Uptime(message);
+
                 default:
                     if (Config.Behavior.StaticCommands.ContainsKey(command))
                     {
@@ -113,6 +117,35 @@ namespace Waterbot
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines the bot's response to the "uptime" command.
+        /// </summary>
+        /// <param name="message">The message to respond to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected virtual async Task<ChatMessage> Uptime(ChatMessage message)
+        {
+            var stream = await message.Channel.GetStreamAsync();
+            if (stream == null)
+            {
+                var format = Config.Behavior.UptimeOfflineResponses.Sample(RNG);
+                var response = string.Format(format, message.Channel);
+
+                return message.CreateResponse(response);
+            }
+            else
+            {
+                var startTime = stream.Started;
+                var elapsedTime = startTime.ToRelativeTimeString();
+
+                var response = string.Format("{0} started streaming {1}.",
+                    stream.Channel, elapsedTime);
+                return message.CreateResponse(response);
+            }
         }
     }
 }

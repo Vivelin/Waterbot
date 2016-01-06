@@ -18,6 +18,15 @@ namespace Kappa
         /// </summary>
         public ChatMessage(string channel, string contents) : base()
         {
+            Channel = new Channel(channel);
+            Contents = contents;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+        /// </summary>
+        public ChatMessage(Channel channel, string contents) : base()
+        {
             Channel = channel;
             Contents = contents;
         }
@@ -43,7 +52,7 @@ namespace Kappa
                     "A chat message should always contain at least two parameters.",
                     nameof(parameters));
 
-            Channel = IrcUtil.UnescapeChannelName(parameters[0]);
+            Channel = new Channel(parameters[0]);
             Contents = parameters[1];
 
             DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
@@ -53,7 +62,7 @@ namespace Kappa
         /// <summary>
         /// Gets the Twitch channel that the message belongs to.
         /// </summary>
-        public string Channel { get; }
+        public Channel Channel { get; }
 
         /// <summary>
         /// Gets the contents of the chat message.
@@ -94,7 +103,7 @@ namespace Kappa
         {
             get
             {
-                return string.Compare(UserName, Channel, true) == 0;
+                return string.Compare(UserName, Channel.Name, true) == 0;
             }
         }
 
@@ -159,7 +168,7 @@ namespace Kappa
             Command = Commands.PRIVMSG;
 
             Parameters.Clear();
-            Parameters.Add(IrcUtil.EscapeChannelName(Channel));
+            Parameters.Add(Channel.ToIrcChannel());
             Parameters.Add(Contents);
 
             return base.ConstructCommand();

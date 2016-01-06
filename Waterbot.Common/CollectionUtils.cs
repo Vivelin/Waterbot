@@ -60,6 +60,10 @@ namespace Waterbot.Common
         /// <returns>A random element from the list.</returns>
         public static T Sample<T>(this IList<T> list, Random rng)
         {
+            if (list == null) throw new ArgumentNullException(nameof(list));
+            if (list.Count == 0) return default(T);
+            if (list.Count == 1) return list[0];
+
             var i = rng.Next(0, list.Count);
             return list[i];
         }

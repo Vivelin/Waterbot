@@ -36,6 +36,7 @@ namespace Waterbot
         public Waterbot(Configuration config)
         {
             currentConfig = config;
+            TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
             TwitchChat.Disconnected += TwitchChat_Disconnected;
@@ -238,6 +239,11 @@ namespace Waterbot
         protected virtual void OnConfigChanged(EventArgs args)
         {
             ConfigChanged?.Invoke(this, args);
+
+            if (Config != null)
+            {
+                TwitchApiObject.ClientId = Config.Credentials.ClientId;
+            }
         }
 
         /// <summary>
@@ -280,7 +286,7 @@ namespace Waterbot
                 return;
             }
 
-            var response = Behavior.ProcessMessage(e.Message);
+            var response = await Behavior.ProcessMessage(e.Message);
             if (response != null)
             {
                 await TwitchChat.SendMessage(response);
