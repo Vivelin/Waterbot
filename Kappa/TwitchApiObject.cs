@@ -18,6 +18,11 @@ namespace Kappa
         private readonly Uri apiBase = new Uri("https://api.twitch.tv/kraken/");
 
         /// <summary>
+        /// Gets or sets the Twitch Developer Application's client ID.
+        /// </summary>
+        public static string ClientId { get; set; }
+
+        /// <summary>
         /// Gets the address at which the API is located.
         /// </summary>
         protected override Uri ApiAddress => new Uri(apiBase, Endpoint);
@@ -40,7 +45,9 @@ namespace Kappa
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/vnd.twitchtv.v3+json");
-                // client.DefaultRequestHeaders.Add("Client-ID", "");
+                if (ClientId != null)
+                    client.DefaultRequestHeaders.Add("Client-ID", ClientId);
+
                 return await client.GetStringAsync(ApiAddress);
             }
         }
