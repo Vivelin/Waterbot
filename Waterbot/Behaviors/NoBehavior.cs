@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Kappa;
 
 namespace Waterbot.Behaviors
@@ -42,9 +43,10 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        public override ChatMessage ProcessMessage(ChatMessage message)
+        public override Task<ChatMessage> ProcessMessage(ChatMessage message)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -52,9 +54,10 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override Task<ChatMessage> GetResponse(ChatMessage message)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -63,9 +66,10 @@ namespace Waterbot.Behaviors
         /// <param name="message">The message to respond to.</param>
         /// <param name="command">The command to handle.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
     }
 }

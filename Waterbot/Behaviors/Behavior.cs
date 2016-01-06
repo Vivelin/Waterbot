@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Kappa;
 
 namespace Waterbot
@@ -90,7 +91,7 @@ namespace Waterbot
         /// the command did not result in a response, the method <see
         /// cref="GetResponse"/> will be used to determine the bot's response.
         /// </remarks>
-        public virtual ChatMessage ProcessMessage(ChatMessage message)
+        public virtual async Task<ChatMessage> ProcessMessage(ChatMessage message)
         {
             var command = GetCommand(message);
             if (!string.IsNullOrEmpty(command))
@@ -98,12 +99,12 @@ namespace Waterbot
                 if (Config.Behavior.CommandAliases.ContainsKey(command))
                     command = Config.Behavior.CommandAliases[command];
 
-                var response = HandleCommand(message, command);
+                var response = await HandleCommand(message, command);
                 if (response != null)
                     return response;
             }
 
-            return GetResponse(message);
+            return await GetResponse(message);
         }
 
         /// <summary>
@@ -142,7 +143,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected abstract ChatMessage GetResponse(ChatMessage message);
+        protected abstract Task<ChatMessage> GetResponse(ChatMessage message);
 
         /// <summary>
         /// When overridden in a derived class, determines the bot's response to
@@ -154,6 +155,6 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected abstract ChatMessage HandleCommand(ChatMessage message, string command);
+        protected abstract Task<ChatMessage> HandleCommand(ChatMessage message, string command);
     }
 }

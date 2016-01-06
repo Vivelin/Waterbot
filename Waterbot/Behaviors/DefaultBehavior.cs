@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
 
@@ -76,18 +77,18 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override Task<ChatMessage> GetResponse(ChatMessage message)
         {
             if (message.Mentions(UserName))
             {
                 if (message.MentionsAny(Config.Behavior.Greetings))
-                    return Greet(message);
+                    return Task.FromResult(Greet(message));
 
                 var response = Config.Behavior.DefaultResponses.Sample(RNG);
-                return message.CreateResponse(response, true);
+                return Task.FromResult(message.CreateResponse(response, true));
             }
 
-            return null;
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -99,12 +100,12 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
             switch (command.ToLowerInvariant())
             {
                 case "uptime":
-                    return Uptime(message);
+                    return await Uptime(message);
 
                 default:
                     if (Config.Behavior.StaticCommands.ContainsKey(command))
@@ -126,9 +127,9 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected virtual ChatMessage Uptime(ChatMessage message)
+        protected virtual async Task<ChatMessage> Uptime(ChatMessage message)
         {
-            var stream = message.Channel.GetStream().Result;
+            var stream = await message.Channel.GetStream();
 
             var startTime = stream.Started;
             var elapsedTime = startTime.ToRelativeTimeString();
