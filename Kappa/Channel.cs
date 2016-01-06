@@ -32,6 +32,7 @@ namespace Kappa
         /// <summary>
         /// Gets the name of the channel.
         /// </summary>
+        [JsonProperty("name")]
         public string Name { get; protected set; }
 
         /// <summary>
@@ -47,12 +48,12 @@ namespace Kappa
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task<Stream> GetStream()
+        public async Task<Stream> GetStreamAsync()
         {
-            var stream = new Stream(this);
-            await stream.Load();
+            var results = new StreamResults(this);
+            await results.Load();
 
-            return stream;
+            return results.Stream;
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace Kappa
         /// <returns>A string representing the current channel.</returns>
         public override string ToString()
         {
-            return Name ?? base.ToString();
+            return DisplayName ?? Name ?? base.ToString();
         }
     }
 }

@@ -129,13 +129,15 @@ namespace Waterbot
         /// </returns>
         protected virtual async Task<ChatMessage> Uptime(ChatMessage message)
         {
-            var stream = await message.Channel.GetStream();
+            var stream = await message.Channel.GetStreamAsync();
+            if (stream == null)
+                return null;
 
             var startTime = stream.Started;
             var elapsedTime = startTime.ToRelativeTimeString();
 
-            var response = string.Format("{0} started streaming {1}",
-                message.Channel, elapsedTime);
+            var response = string.Format("{0} started streaming {1}.",
+                stream.Channel, elapsedTime);
             return message.CreateResponse(response);
         }
     }

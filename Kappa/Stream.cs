@@ -12,35 +12,18 @@ namespace Kappa
     /// Represents a stream on Twitch.
     /// </summary>
     [Serializable]
-    public class Stream : TwitchApiObject
+    public class Stream
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Stream"/> class for the
-        /// channel with the specified name.
+        /// Initializes a new instance of the <see cref="Stream"/> class.
         /// </summary>
-        /// <param name="channel">The name of the channel</param>
-        public Stream(string channel)
-            : this(new Channel(channel))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Stream"/> class for the
-        /// specified channel.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
-        public Stream(Channel channel)
-        {
-            if (channel == null)
-                throw new ArgumentNullException(nameof(channel));
-
-            Channel = channel;
-        }
+        protected Stream() { }
 
         /// <summary>
         /// Gets the channel of the stream.
         /// </summary>
-        public Channel Channel { get; }
+        [JsonProperty("channel")] // Fuck Json.NET
+        public Channel Channel { get; protected set; }
 
         /// <summary>
         /// Gets the name of the game being streamed.
@@ -49,20 +32,34 @@ namespace Kappa
         public string Game { get; protected set; }
 
         /// <summary>
+        /// Gets a value that indicates when the object has last been loaded
+        /// using live data; otherwise, returns <c>null</c>.
+        /// </summary>
+        public DateTime? Loaded { get; internal set; }
+
+        /// <summary>
         /// Gets the start time of the stream.
         /// </summary>
         [JsonProperty("created_at")]
         public DateTime Started { get; protected set; }
 
         /// <summary>
-        /// Gets the Twitch API endpoint for streams.
+        /// Gets the average framerate of the stream.
         /// </summary>
-        protected override string Endpoint => "streams/" + Channel.Name;
+        [JsonProperty("average_fps")]
+        public double VideoFramerate { get; protected set; }
 
         /// <summary>
-        /// Gets the name of the JSON property that contains the actual data.
+        /// Gets the height of the stream, in pixels.
         /// </summary>
-        protected override string PropertyName => "stream";
+        [JsonProperty("video_height")]
+        public int VideoHeight { get; protected set; }
+
+        /// <summary>
+        /// Gets the amount of viewers currently watching the stream.
+        /// </summary>
+        [JsonProperty("viewers")]
+        public int Viewers { get; protected set; }
 
         /// <summary>
         /// Returns a string that represents the current stream.

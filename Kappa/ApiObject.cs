@@ -17,7 +17,7 @@ namespace Kappa
         /// Gets a value that indicates when the object has last been loaded
         /// using live data; otherwise, returns <c>null</c>.
         /// </summary>
-        public DateTime? Loaded { get; private set; }
+        public DateTime? Loaded { get; internal set; }
 
         /// <summary>
         /// When overridden in a derived class, gets the address at which the

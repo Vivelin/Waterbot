@@ -29,12 +29,6 @@ namespace Kappa
         protected abstract string Endpoint { get; }
 
         /// <summary>
-        /// When overridden in a derived object, gets the name of the JSON
-        /// property that contains the actual data.
-        /// </summary>
-        protected virtual string PropertyName { get; }
-
-        /// <summary>
         /// Makes a GET request to the API and returns the result.
         /// </summary>
         /// <returns>
@@ -48,25 +42,6 @@ namespace Kappa
                 client.DefaultRequestHeaders.Add("Accept", "application/vnd.twitchtv.v3+json");
                 // client.DefaultRequestHeaders.Add("Client-ID", "");
                 return await client.GetStringAsync(ApiAddress);
-            }
-        }
-
-        /// <summary>
-        /// Populates the current stream with the specified data.
-        /// </summary>
-        /// <param name="data">The data to populate the stream with.</param>
-        protected override void Populate(string data)
-        {
-            if (!string.IsNullOrEmpty(PropertyName))
-            {
-                var obj = JObject.Parse(data);
-                var token = obj[PropertyName].ToString();
-                if (!string.IsNullOrEmpty(token))
-                    JsonConvert.PopulateObject(token, this);
-            }
-            else
-            {
-                base.Populate(data);
             }
         }
     }
