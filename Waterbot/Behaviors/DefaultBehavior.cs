@@ -10,6 +10,8 @@ namespace Waterbot
     /// </summary>
     public class DefaultBehavior : Behavior
     {
+        private int idleCount = 0;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultBehavior"/>
         /// class using the specified configuration.
@@ -24,6 +26,30 @@ namespace Waterbot
         /// Gets a random number generator for this instance.
         /// </summary>
         protected Random RNG { get; }
+
+        /// <summary>
+        /// When overridden in a derived class, determines the bot's messages
+        /// when idle in the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public override Task<ChatMessage> GetIdleMessage(Channel channel)
+        {
+            var n = Config.Behavior.IdleMessages.Count;
+            var format = Config.Behavior.IdleMessages[idleCount];
+            var text = string.Format(format,
+                channel, // {0}
+                Config.Credentials.UserName); // {1}
+
+            if (++idleCount >= n)
+                idleCount = 0;
+
+            var message = new ChatMessage(channel, text);
+            return Task.FromResult(message);
+        }
 
         /// <summary>
         /// Determines the bot's message when joining a channel.
