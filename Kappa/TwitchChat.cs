@@ -49,6 +49,16 @@ namespace Kappa
         public event EventHandler<ChatMessageEventArgs> MessageReceived;
 
         /// <summary>
+        /// Occurs when someone has joined chat.
+        /// </summary>
+        public event EventHandler<MessageEventArgs> ViewerJoined;
+
+        /// <summary>
+        /// Occurs when someone has left chat.
+        /// </summary>
+        public event EventHandler<MessageEventArgs> ViewerLeft;
+
+        /// <summary>
         /// Gets the name of the user that is connected to Twitch.
         /// </summary>
         public string UserName { get; set; }
@@ -126,7 +136,8 @@ namespace Kappa
         {
             sendMessageTask = new TaskCompletionSource<bool>();
 
-            IrcClient.SendRawMessage("JOIN " + IrcUtil.EscapeChannelName(channel));
+            var message = new JoinMessage(channel);
+            IrcClient.SendRawMessage(message.ConstructCommand());
             await sendMessageTask.Task;
 
             sendMessageTask = null;
@@ -212,6 +223,26 @@ namespace Kappa
             MessageReceived?.Invoke(this, args);
         }
 
+        /// <summary>
+        /// Raises the <see cref="ViewerJoined"/> event.
+        /// </summary>
+        /// <param name="message">The message that was received.</param>
+        protected virtual void OnViewerJoined(Message message)
+        {
+            var args = new MessageEventArgs(message);
+            ViewerJoined?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="ViewerLeft"/> event.
+        /// </summary>
+        /// <param name="message">The message that was received.</param>
+        protected virtual void OnViewerLeft(Message message)
+        {
+            var args = new MessageEventArgs(message);
+            ViewerLeft?.Invoke(this, args);
+        }
+
         private void IrcClient_Connected(object sender, EventArgs e)
         {
             Debug.Assert(connectTask != null,
@@ -249,9 +280,11 @@ namespace Kappa
             var message = Message.Parse(e.RawContent);
 
             if (message is ChatMessage)
-            {
                 OnMessageReceived((ChatMessage)message);
-            }
+            else if (message is JoinMessage)
+                OnViewerJoined(message);
+            else if (message is PartMessage)
+                OnViewerLeft(message);
             else
             {
                 Trace.WriteLine(message.RawMessage, "Unhandled message received");

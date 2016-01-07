@@ -325,17 +325,16 @@ namespace Waterbot
         {
             while (!cancelToken.IsCancellationRequested)
             {
-                Trace.WriteLine("Ping");
-
                 for (var i = 0; i < LastActivity.Count; i++)
                 {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+
                     var item = LastActivity.ElementAt(i);
                     var channel = item.Key;
                     var elapsed = DateTime.Now - item.Value;
                     if (elapsed > Config.Behavior.IdleTimeout)
                     {
-                        Console.WriteLine("I'm bored...");
-
                         var message = await Behavior.GetIdleMessage(new Channel(channel));
                         if (message != null)
                         {

@@ -21,28 +21,20 @@ namespace Kappa
         /// Initializes a new instance of the <see cref="Message"/> class with
         /// the contents of the parsed message.
         /// </summary>
-        /// <param name="message">The raw IRC message.</param>
-        /// <param name="tags">A dictionary containing the message tags.</param>
-        /// <param name="prefix">The message prefix.</param>
-        /// <param name="command">The message command.</param>
-        /// <param name="parameters">The parameters of the command.</param>
-        protected internal Message(string message,
-            IReadOnlyDictionary<string, string> tags,
-            string prefix,
-            string command,
-            IList<string> parameters)
+        /// <param name="results">The parsed message.</param>
+        protected internal Message(ParseResults results)
         {
-            RawMessage = message;
-            Tags = tags;
-            Prefix = prefix;
-            Command = command;
-            Parameters = parameters;
+            RawMessage = results.Message;
+            Tags = results.Tags;
+            Prefix = results.Prefix;
+            Command = results.Command;
+            Parameters = results.Parameters;
 
-            if (prefix != null)
+            if (results.Prefix != null)
             {
-                var i = prefix.IndexOf('!');
+                var i = results.Prefix.IndexOf('!');
                 if (i > 0)
-                    UserName = prefix.Substring(0, i);
+                    UserName = results.Prefix.Substring(0, i);
             }
         }
 
@@ -153,7 +145,8 @@ namespace Kappa
                 }
             }
 
-            return Create(message, tags, prefix, command, parameters);
+            var results = new ParseResults(message, tags, prefix, command, parameters);
+            return Create(results);
         }
 
         /// <summary>
@@ -174,21 +167,23 @@ namespace Kappa
             return RawMessage;
         }
 
-        private static Message Create(string message,
-            Dictionary<string, string> tags,
-            string prefix,
-            string command,
-            List<string> parameters)
+        private static Message Create(ParseResults results)
         {
-            Trace.WriteLine(message, "IRC");
+            Trace.WriteLine(results.Message, "IRC");
 
-            switch (command)
+            switch (results.Command)
             {
                 case Commands.PRIVMSG:
-                    return new ChatMessage(message, tags, prefix, command, parameters);
+                    return new ChatMessage(results);
+
+                case Commands.JOIN:
+                    return new JoinMessage(results);
+
+                case Commands.PART:
+                    return new PartMessage(results);
 
                 default:
-                    return new Message(message, tags, prefix, command, parameters);
+                    return new Message(results);
             }
         }
 
@@ -217,6 +212,63 @@ namespace Kappa
             }
 
             return tags;
+        }
+
+        /// <summary>
+        /// Provides the message parsing results.
+        /// </summary>
+        protected internal class ParseResults
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ParseResults"/>
+            /// class.
+            /// </summary>
+            /// <param name="message">The raw IRC message.</param>
+            /// <param name="tags">
+            /// A dictionary containing the message tags.
+            /// </param>
+            /// <param name="prefix">The message prefix.</param>
+            /// <param name="command">The message command.</param>
+            /// <param name="parameters">The parameters of the command.</param>
+            public ParseResults(string message,
+                IReadOnlyDictionary<string, string> tags,
+                string prefix,
+                string command,
+                IList<string> parameters)
+            {
+                Message = message;
+                Tags = tags;
+                Prefix = prefix;
+                Command = command;
+                Parameters = parameters;
+            }
+
+            /// <summary>
+            /// Gets the IRC command name of the message.
+            /// </summary>
+            public string Command { get; }
+
+            /// <summary>
+            /// Gets the raw message as it was sent by the server.
+            /// </summary>
+            public string Message { get; }
+
+            /// <summary>
+            /// Gets a list that contains the command's parameters.
+            /// </summary>
+            public IList<string> Parameters { get; }
+
+            /// <summary>
+            /// Gets a value containing the message prefix, or <c>null</c> if no
+            /// prefix was specified.
+            /// </summary>
+            public string Prefix { get; }
+
+            /// <summary>
+            /// Gets a dictionary containing the tags for the message, or
+            /// <c>null</c> if the message did not have any tags.
+            /// </summary>
+            public IReadOnlyDictionary<string, string> Tags { get; }
         }
     }
 }

@@ -53,6 +53,9 @@
   <ItemGroup>
     <Compile Include="ApiObject.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="Messages\PartMessage.cs" />
+    <Compile Include="Messages\JoinMessage.cs" />
     <Compile Include="Stream.cs" />
     <Compile Include="ChatMessageEventArgs.cs" />
     <Compile Include="Constants\Commands.cs" />
