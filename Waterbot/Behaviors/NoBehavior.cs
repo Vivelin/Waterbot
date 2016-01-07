@@ -21,6 +21,17 @@ namespace Waterbot.Behaviors
         /// <summary>
         /// Returns <c>null</c>.
         /// </summary>
+        /// <param name="channel">The channel to not send messages to.</param>
+        /// <returns>Always returns <c>null</c>.</returns>
+        public override Task<ChatMessage> GetIdleMessage(Channel channel)
+        {
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
+        }
+
+        /// <summary>
+        /// Returns <c>null</c>.
+        /// </summary>
         /// <param name="channel">The channel that was joined.</param>
         /// <returns>Always returns <c>null</c>.</returns>
         public override ChatMessage GetJoinMessage(string channel)

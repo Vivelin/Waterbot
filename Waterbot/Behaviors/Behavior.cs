@@ -50,6 +50,17 @@ namespace Waterbot
         protected IList<Regex> CommandPatterns { get; }
 
         /// <summary>
+        /// When overridden in a derived class, determines the bot's messages
+        /// when idle in the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public abstract Task<ChatMessage> GetIdleMessage(Channel channel);
+
+        /// <summary>
         /// When overridden in a derived class, determines the bot's message
         /// when joining a channel.
         /// </summary>

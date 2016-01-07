@@ -42,8 +42,13 @@ namespace Waterbot.Config
             };
             UptimeOfflineResponses = new List<string>
             {
-                { "{0} is offline." }
+                "{0} is offline."
             };
+            IdleMessages = new List<string>
+            {
+                "Kappa",
+            };
+            IdleTimeout = new TimeSpan(0, 15, 0);
         }
 
         /// <summary>
@@ -80,6 +85,20 @@ namespace Waterbot.Config
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
         public IList<string> Greetings { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of static messages to show periodically when the
+        /// bot is idle.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public IList<string> IdleMessages { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time it takes for the bot to get bored.
+        /// </summary>
+        public TimeSpan IdleTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets a dictionary containing custom properties.

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
@@ -18,12 +19,43 @@ namespace Waterbot
         public DefaultBehavior(Configuration config) : base(config)
         {
             RNG = new Random();
+            IdleCounts = new Dictionary<string, int>();
         }
+
+        /// <summary>
+        /// Gets a dictionary that keeps the current index in the idle messages
+        /// cycle for each channel.
+        /// </summary>
+        protected IDictionary<string, int> IdleCounts { get; }
 
         /// <summary>
         /// Gets a random number generator for this instance.
         /// </summary>
         protected Random RNG { get; }
+
+        /// <summary>
+        /// When overridden in a derived class, determines the bot's messages
+        /// when idle in the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public override Task<ChatMessage> GetIdleMessage(Channel channel)
+        {
+            var n = Config.Behavior.IdleMessages.Count;
+            var i = IdleCounts.Get(channel.Name);
+            var format = Config.Behavior.IdleMessages[i];
+            var text = string.Format(format,
+                channel, // {0}
+                Config.Credentials.UserName); // {1}
+
+            IdleCounts[channel.Name] = (i + 1) % n;
+
+            var message = new ChatMessage(channel, text);
+            return Task.FromResult(message);
+        }
 
         /// <summary>
         /// Determines the bot's message when joining a channel.

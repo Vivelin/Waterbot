@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Kappa;
 
@@ -25,6 +27,7 @@ namespace Waterbot
     public class Waterbot : IDisposable
     {
         private Behavior behavior = null;
+        private CancellationTokenSource cancelSource = new CancellationTokenSource();
         private Configuration currentConfig = null;
         private bool isDisposed = false;
 
@@ -42,8 +45,14 @@ namespace Waterbot
             TwitchChat.Disconnected += TwitchChat_Disconnected;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
 
-            Channels = new List<string>();
+            Channels = new List<Channel>();
+            LastActivity = new Dictionary<string, DateTime>();
         }
+
+        /// <summary>
+        /// Occurs when the bot has joined a channel.
+        /// </summary>
+        public event EventHandler<ChannelEventArgs> ChannelJoined;
 
         /// <summary>
         /// Occurs when the current configuration has changed.
@@ -77,7 +86,7 @@ namespace Waterbot
         /// <summary>
         /// Gets a list of channels the bot is currently connected to.
         /// </summary>
-        public IList<string> Channels { get; }
+        public IList<Channel> Channels { get; }
 
         /// <summary>
         /// Gets or sets the configuration to use.
@@ -94,6 +103,12 @@ namespace Waterbot
                 }
             }
         }
+
+        /// <summary>
+        /// Gets a dictionary that keeps the time of the last bot activity in
+        /// each channel.
+        /// </summary>
+        public IDictionary<string, DateTime> LastActivity { get; }
 
         /// <summary>
         /// Gets the <see cref="TwitchChat"/> object used to communicate with
@@ -120,7 +135,7 @@ namespace Waterbot
         public async Task JoinAsync(string channel)
         {
             await TwitchChat.JoinAsync(channel);
-            Channels.Add(channel);
+            OnChannelJoined(new ChannelEventArgs(new Channel(channel)));
 
             var message = Behavior.GetJoinMessage(channel);
             if (message != null)
@@ -165,6 +180,12 @@ namespace Waterbot
 
             await JoinAsync(Config.Credentials.UserName);
             await JoinAsync(Config.DefaultChannels);
+
+            var thread = new Thread(async () =>
+            {
+                await RunAsync(cancelSource.Token);
+            });
+            thread.Start();
         }
 
         /// <summary>
@@ -176,9 +197,11 @@ namespace Waterbot
         /// </returns>
         public async Task StopAsync()
         {
+            cancelSource.Cancel();
+
             foreach (var channel in Channels)
             {
-                var message = Behavior.GetPartMessage(channel);
+                var message = Behavior.GetPartMessage(channel.ToIrcChannel());
                 if (message != null)
                 {
                     await TwitchChat.SendMessage(message);
@@ -231,6 +254,21 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Raises the <see cref="ChannelJoined"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="ChannelEventArgs"/> object that provides data for the
+        /// event.
+        /// </param>
+        protected virtual void OnChannelJoined(ChannelEventArgs args)
+        {
+            ChannelJoined?.Invoke(this, args);
+
+            Channels.Add(args.Channel);
+            LastActivity[args.Channel.Name] = DateTime.Now;
+        }
+
+        /// <summary>
         /// Raises the <see cref="ConfigChanged"/> event.
         /// </summary>
         /// <param name="args">
@@ -268,6 +306,49 @@ namespace Waterbot
         protected virtual void OnMessageSent(ChatMessageEventArgs args)
         {
             MessageSent?.Invoke(this, args);
+
+            LastActivity[args.Message.Channel.Name] = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Performs background operations that do not involve responding to
+        /// events.
+        /// </summary>
+        /// <param name="cancelToken">
+        /// A cancellation token that can be used to stop operations.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        protected async Task RunAsync(System.Threading.CancellationToken cancelToken)
+        {
+            while (!cancelToken.IsCancellationRequested)
+            {
+                for (var i = 0; i < LastActivity.Count; i++)
+                {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+
+                    var item = LastActivity.ElementAt(i);
+                    var channel = item.Key;
+                    var elapsed = DateTime.Now - item.Value;
+                    if (elapsed > Config.Behavior.IdleTimeout)
+                    {
+                        var message = await Behavior.GetIdleMessage(new Channel(channel));
+                        if (message != null)
+                        {
+                            await TwitchChat.SendMessage(message);
+                            OnMessageSent(new ChatMessageEventArgs(message));
+                        }
+
+                        LastActivity[channel] = DateTime.Now;
+                    }
+                }
+
+                if (!cancelToken.IsCancellationRequested)
+                    await Task.Delay(1000);
+            }
         }
 
         private void TwitchChat_Disconnected(object sender, EventArgs e)

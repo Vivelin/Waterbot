@@ -39,6 +39,36 @@ namespace Waterbot.Common
         }
 
         /// <summary>
+        /// Gets the value that is associated with the specified key, or the
+        /// default value for <typeparamref name="TValue"/>.
+        /// </summary>
+        /// <typeparam name="TKey">
+        /// The type of keys in the dictionary.
+        /// </typeparam>
+        /// <typeparam name="TValue">
+        /// The type of values in the dictionary.
+        /// </typeparam>
+        /// <param name="dictionary">
+        /// The dictionary to get the value from.
+        /// </param>
+        /// <param name="key">The key to locate.</param>
+        /// <returns>
+        /// The value that is associated with the specified key, or the default
+        /// value for <typeparamref name="TValue"/>.
+        /// </returns>
+        public static TValue Get<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key)
+        {
+            if (dictionary == null)
+                throw new ArgumentNullException(nameof(dictionary));
+
+            TValue value = default(TValue);
+            dictionary.TryGetValue(key, out value);
+            return value;
+        }
+
+        /// <summary>
         /// Returns a random element from the list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the list.</typeparam>
