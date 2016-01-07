@@ -46,14 +46,9 @@ namespace Waterbot.Config
             };
             IdleMessages = new List<string>
             {
-                "I'm bored. {0}, why don't you try some of my commands?",
-                "Seriously though, if anyone needs some help, just say \"@{1} help\".",
                 "Kappa",
-                "I can't think of anything to say.",
-                "ResidentSleeper",
-                "Hey {0}, do you know of any good jokes?"
             };
-            IdleTimeout = new TimeSpan(0, 5, 0);
+            IdleTimeout = new TimeSpan(0, 15, 0);
         }
 
         /// <summary>
