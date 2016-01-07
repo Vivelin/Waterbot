@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
@@ -10,8 +11,6 @@ namespace Waterbot
     /// </summary>
     public class DefaultBehavior : Behavior
     {
-        private int idleCount = 0;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultBehavior"/>
         /// class using the specified configuration.
@@ -20,7 +19,14 @@ namespace Waterbot
         public DefaultBehavior(Configuration config) : base(config)
         {
             RNG = new Random();
+            IdleCounts = new Dictionary<string, int>();
         }
+
+        /// <summary>
+        /// Gets a dictionary that keeps the current index in the idle messages
+        /// cycle for each channel.
+        /// </summary>
+        protected IDictionary<string, int> IdleCounts { get; }
 
         /// <summary>
         /// Gets a random number generator for this instance.
@@ -39,13 +45,13 @@ namespace Waterbot
         public override Task<ChatMessage> GetIdleMessage(Channel channel)
         {
             var n = Config.Behavior.IdleMessages.Count;
-            var format = Config.Behavior.IdleMessages[idleCount];
+            var i = IdleCounts.Get(channel.Name);
+            var format = Config.Behavior.IdleMessages[i];
             var text = string.Format(format,
                 channel, // {0}
                 Config.Credentials.UserName); // {1}
 
-            if (++idleCount >= n)
-                idleCount = 0;
+            IdleCounts[channel.Name] = (i + 1) % n;
 
             var message = new ChatMessage(channel, text);
             return Task.FromResult(message);
