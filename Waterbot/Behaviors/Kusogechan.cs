@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Kappa;
 
 namespace Waterbot.Behaviors
@@ -32,7 +33,7 @@ namespace Waterbot.Behaviors
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override async Task<ChatMessage> GetResponse(ChatMessage message)
         {
             foreach (var item in Echo)
             {
@@ -41,7 +42,7 @@ namespace Waterbot.Behaviors
             }
 
             // Fall back to default behavior
-            return base.GetResponse(message);
+            return await base.GetResponse(message);
         }
 
         /// <summary>
@@ -53,9 +54,9 @@ namespace Waterbot.Behaviors
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
-            return base.HandleCommand(message, command);
+            return await base.HandleCommand(message, command);
         }
     }
 }

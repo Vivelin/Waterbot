@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Kappa;
 
 namespace Waterbot.Behaviors
@@ -15,6 +16,17 @@ namespace Waterbot.Behaviors
         /// <param name="config">The current configuration.</param>
         public NoBehavior(Configuration config) : base(config)
         {
+        }
+
+        /// <summary>
+        /// Returns <c>null</c>.
+        /// </summary>
+        /// <param name="channel">The channel to not send messages to.</param>
+        /// <returns>Always returns <c>null</c>.</returns>
+        public override Task<ChatMessage> GetIdleMessage(Channel channel)
+        {
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -42,9 +54,10 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        public override ChatMessage ProcessMessage(ChatMessage message)
+        public override Task<ChatMessage> ProcessMessage(ChatMessage message)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -52,9 +65,10 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override Task<ChatMessage> GetResponse(ChatMessage message)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -63,9 +77,10 @@ namespace Waterbot.Behaviors
         /// <param name="message">The message to respond to.</param>
         /// <param name="command">The command to handle.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
-            return null;
+            // async: never again
+            return Task.FromResult<ChatMessage>(null);
         }
     }
 }

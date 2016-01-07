@@ -18,6 +18,15 @@ namespace Kappa
         /// </summary>
         public ChatMessage(string channel, string contents) : base()
         {
+            Channel = new Channel(channel);
+            Contents = contents;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+        /// </summary>
+        public ChatMessage(Channel channel, string contents) : base()
+        {
             Channel = channel;
             Contents = contents;
         }
@@ -26,34 +35,25 @@ namespace Kappa
         /// Initializes a new instance of the <see cref="ChatMessage"/> class
         /// with the contents of the parsed message.
         /// </summary>
-        /// <param name="message">The raw IRC message.</param>
-        /// <param name="tags">A dictionary containing the message tags.</param>
-        /// <param name="prefix">The message prefix.</param>
-        /// <param name="command">The message command.</param>
-        /// <param name="parameters">The parameters of the command.</param>
-        protected internal ChatMessage(string message,
-            IReadOnlyDictionary<string, string> tags,
-            string prefix,
-            string command,
-            IList<string> parameters)
-            : base(message, tags, prefix, command, parameters)
+        /// <param name="results">The parsed message.</param>
+        protected internal ChatMessage(ParseResults results) : base(results)
         {
-            if (parameters.Count < 2)
+            if (Parameters.Count < 2)
                 throw new ArgumentException(
                     "A chat message should always contain at least two parameters.",
-                    nameof(parameters));
+                    nameof(results));
 
-            Channel = IrcUtil.UnescapeChannelName(parameters[0]);
-            Contents = parameters[1];
+            Channel = new Channel(Parameters[0]);
+            Contents = Parameters[1];
 
-            DisplayName = tags?.Get(MessageTags.DisplayName) ?? UserName;
+            DisplayName = Tags?.Get(MessageTags.DisplayName) ?? UserName;
             if (DisplayName.Length == 0) DisplayName = UserName;
         }
 
         /// <summary>
         /// Gets the Twitch channel that the message belongs to.
         /// </summary>
-        public string Channel { get; }
+        public Channel Channel { get; }
 
         /// <summary>
         /// Gets the contents of the chat message.
@@ -94,7 +94,7 @@ namespace Kappa
         {
             get
             {
-                return string.Compare(UserName, Channel, true) == 0;
+                return string.Compare(UserName, Channel.Name, true) == 0;
             }
         }
 
@@ -126,6 +126,19 @@ namespace Kappa
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is
+        /// part of the Twitch staff.
+        /// </summary>
+        public bool IsStaff
+        {
+            get
+            {
+                var userType = Tags?.Get(MessageTags.UserType);
+                return userType == "staff";
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the user who sent the message is
         /// subscribed to the current channel.
         /// </summary>
         public bool IsSub
@@ -146,7 +159,7 @@ namespace Kappa
             Command = Commands.PRIVMSG;
 
             Parameters.Clear();
-            Parameters.Add(IrcUtil.EscapeChannelName(Channel));
+            Parameters.Add(Channel.ToIrcChannel());
             Parameters.Add(Contents);
 
             return base.ConstructCommand();

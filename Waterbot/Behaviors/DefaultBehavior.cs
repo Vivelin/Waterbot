@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
 
@@ -17,12 +19,43 @@ namespace Waterbot
         public DefaultBehavior(Configuration config) : base(config)
         {
             RNG = new Random();
+            IdleCounts = new Dictionary<string, int>();
         }
+
+        /// <summary>
+        /// Gets a dictionary that keeps the current index in the idle messages
+        /// cycle for each channel.
+        /// </summary>
+        protected IDictionary<string, int> IdleCounts { get; }
 
         /// <summary>
         /// Gets a random number generator for this instance.
         /// </summary>
         protected Random RNG { get; }
+
+        /// <summary>
+        /// When overridden in a derived class, determines the bot's messages
+        /// when idle in the specified channel.
+        /// </summary>
+        /// <param name="channel">The channel to send the message to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        public override Task<ChatMessage> GetIdleMessage(Channel channel)
+        {
+            var n = Config.Behavior.IdleMessages.Count;
+            var i = IdleCounts.Get(channel.Name);
+            var format = Config.Behavior.IdleMessages[i];
+            var text = string.Format(format,
+                channel, // {0}
+                Config.Credentials.UserName); // {1}
+
+            IdleCounts[channel.Name] = (i + 1) % n;
+
+            var message = new ChatMessage(channel, text);
+            return Task.FromResult(message);
+        }
 
         /// <summary>
         /// Determines the bot's message when joining a channel.
@@ -76,18 +109,18 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage GetResponse(ChatMessage message)
+        protected override Task<ChatMessage> GetResponse(ChatMessage message)
         {
             if (message.Mentions(UserName))
             {
                 if (message.MentionsAny(Config.Behavior.Greetings))
-                    return Greet(message);
+                    return Task.FromResult(Greet(message));
 
                 var response = Config.Behavior.DefaultResponses.Sample(RNG);
-                return message.CreateResponse(response, true);
+                return Task.FromResult(message.CreateResponse(response, true));
             }
 
-            return null;
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>
@@ -99,22 +132,52 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override ChatMessage HandleCommand(ChatMessage message, string command)
+        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string command)
         {
             switch (command.ToLowerInvariant())
             {
-                case "help":
-                case "info":
-                case "botinfo":
-                    if (!string.IsNullOrEmpty(Config.Behavior.HelpText))
-                        return message.CreateResponse(Config.Behavior.HelpText);
-                    break;
+                case "uptime":
+                    return await Uptime(message);
 
                 default:
+                    if (Config.Behavior.StaticCommands.ContainsKey(command))
+                    {
+                        var response = Config.Behavior.StaticCommands[command];
+                        return message.CreateResponse(response);
+                    }
                     break;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines the bot's response to the "uptime" command.
+        /// </summary>
+        /// <param name="message">The message to respond to.</param>
+        /// <returns>
+        /// A <see cref="ChatMessage"/> object that represents the message to
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected virtual async Task<ChatMessage> Uptime(ChatMessage message)
+        {
+            var stream = await message.Channel.GetStreamAsync();
+            if (stream == null)
+            {
+                var format = Config.Behavior.UptimeOfflineResponses.Sample(RNG);
+                var response = string.Format(format, message.Channel);
+
+                return message.CreateResponse(response);
+            }
+            else
+            {
+                var startTime = stream.Started;
+                var elapsedTime = startTime.ToRelativeTimeString();
+
+                var response = string.Format("{0} started streaming {1}.",
+                    stream.Channel, elapsedTime);
+                return message.CreateResponse(response);
+            }
         }
     }
 }
