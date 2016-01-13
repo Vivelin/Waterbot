@@ -10,8 +10,8 @@ namespace Kappa
     /// </summary>
     public class ChatMessage : Message
     {
-        private string contents;
-        private string normalizedContents;
+        private string _contents;
+        private string _normalizedContents;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
@@ -60,11 +60,11 @@ namespace Kappa
         /// </summary>
         public string Contents
         {
-            get { return contents; }
+            get { return _contents; }
             protected set
             {
-                contents = value;
-                normalizedContents = StringUtils.Normalize(value);
+                _contents = value;
+                _normalizedContents = StringUtils.Normalize(value);
             }
         }
 
@@ -205,7 +205,7 @@ namespace Kappa
         public bool Mentions(string value)
         {
             value = Regex.Escape(StringUtils.Normalize(value));
-            return Regex.IsMatch(normalizedContents, $"\\b{value}\\b", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(_normalizedContents, $"\\b{value}\\b", RegexOptions.IgnoreCase);
         }
 
         /// <summary>

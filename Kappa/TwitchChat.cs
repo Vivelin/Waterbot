@@ -13,11 +13,11 @@ namespace Kappa
     /// </summary>
     public class TwitchChat : IDisposable
     {
-        private readonly EndPoint twitchEP = new DnsEndPoint("irc.twitch.tv", 6667);
-        private TaskCompletionSource<bool> connectTask;
-        private TaskCompletionSource<bool> disconnectTask;
-        private bool isDisposed = false;
-        private TaskCompletionSource<bool> sendMessageTask;
+        private readonly EndPoint _twitchEP = new DnsEndPoint("irc.twitch.tv", 6667);
+        private TaskCompletionSource<bool> _connectTask;
+        private TaskCompletionSource<bool> _disconnectTask;
+        private bool _isDisposed = false;
+        private TaskCompletionSource<bool> _sendMessageTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TwitchChat"/> class,
@@ -81,7 +81,7 @@ namespace Kappa
         /// </returns>
         public async Task ConnectAsync(string userName, string key)
         {
-            connectTask = new TaskCompletionSource<bool>();
+            _connectTask = new TaskCompletionSource<bool>();
 
             var credentials = new IrcUserRegistrationInfo()
             {
@@ -89,10 +89,10 @@ namespace Kappa
                 UserName = userName,
                 Password = key
             };
-            IrcClient.Connect(twitchEP, false, credentials);
-            await connectTask.Task;
+            IrcClient.Connect(_twitchEP, false, credentials);
+            await _connectTask.Task;
 
-            Trace.WriteLine(string.Format("Connected to {0}", twitchEP), "Info");
+            Trace.WriteLine(string.Format("Connected to {0}", _twitchEP), "Info");
             UserName = userName;
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
@@ -108,12 +108,12 @@ namespace Kappa
         /// </returns>
         public async Task DisconnectAsync()
         {
-            disconnectTask = new TaskCompletionSource<bool>();
+            _disconnectTask = new TaskCompletionSource<bool>();
 
             IrcClient.Quit("Cave Johnson, we're done here.");
-            await disconnectTask.Task;
+            await _disconnectTask.Task;
 
-            disconnectTask = null;
+            _disconnectTask = null;
         }
 
         /// <summary>
@@ -134,13 +134,13 @@ namespace Kappa
         /// </returns>
         public async Task JoinAsync(string channel)
         {
-            sendMessageTask = new TaskCompletionSource<bool>();
+            _sendMessageTask = new TaskCompletionSource<bool>();
 
             var message = new JoinMessage(channel);
             IrcClient.SendRawMessage(message.ConstructCommand());
-            await sendMessageTask.Task;
+            await _sendMessageTask.Task;
 
-            sendMessageTask = null;
+            _sendMessageTask = null;
         }
 
         /// <summary>
@@ -174,12 +174,12 @@ namespace Kappa
             if (message != null)
             {
                 var raw = message.ConstructCommand();
-                sendMessageTask = new TaskCompletionSource<bool>();
+                _sendMessageTask = new TaskCompletionSource<bool>();
 
                 IrcClient.SendRawMessage(raw);
-                await sendMessageTask.Task;
+                await _sendMessageTask.Task;
 
-                sendMessageTask = null;
+                _sendMessageTask = null;
                 message.UserName = UserName;
                 message.DisplayName = UserName;
             }
@@ -194,14 +194,14 @@ namespace Kappa
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Auto-implemented property is disposed")]
         protected virtual void Dispose(bool disposing)
         {
-            if (!isDisposed)
+            if (!_isDisposed)
             {
                 if (disposing)
                 {
                     IrcClient?.Dispose();
                 }
 
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 
@@ -245,29 +245,29 @@ namespace Kappa
 
         private void IrcClient_Connected(object sender, EventArgs e)
         {
-            Debug.Assert(connectTask != null,
-                nameof(connectTask) + " cannot be null",
-                nameof(connectTask) + " should always be created before calling Connect");
+            Debug.Assert(_connectTask != null,
+                nameof(_connectTask) + " cannot be null",
+                nameof(_connectTask) + " should always be created before calling Connect");
 
-            connectTask.SetResult(true);
+            _connectTask.SetResult(true);
         }
 
         private void IrcClient_ConnectFailed(object sender, IrcErrorEventArgs e)
         {
-            Debug.Assert(connectTask != null,
-                nameof(connectTask) + " cannot be null",
-                nameof(connectTask) + " should always be created before calling Connect");
+            Debug.Assert(_connectTask != null,
+                nameof(_connectTask) + " cannot be null",
+                nameof(_connectTask) + " should always be created before calling Connect");
 
-            connectTask.SetException(e.Error);
+            _connectTask.SetException(e.Error);
         }
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
         {
-            if (disconnectTask != null)
+            if (_disconnectTask != null)
             {
                 // Use TrySetResult here as opposed to SetResult, as this could
                 // cause issues during debugging when we set it to null.
-                disconnectTask.TrySetResult(true);
+                _disconnectTask.TrySetResult(true);
             }
             else
             {
@@ -293,8 +293,8 @@ namespace Kappa
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)
         {
-            if (sendMessageTask != null)
-                sendMessageTask.TrySetResult(true);
+            if (_sendMessageTask != null)
+                _sendMessageTask.TrySetResult(true);
         }
     }
 }

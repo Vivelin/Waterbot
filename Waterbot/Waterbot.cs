@@ -26,10 +26,10 @@ namespace Waterbot
     /// </example>
     public class Waterbot : IDisposable
     {
-        private Behavior behavior = null;
-        private CancellationTokenSource cancelSource = new CancellationTokenSource();
-        private Configuration currentConfig = null;
-        private bool isDisposed = false;
+        private Behavior _behavior = null;
+        private CancellationTokenSource _cancelSource = new CancellationTokenSource();
+        private Configuration _currentConfig = null;
+        private bool _isDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Waterbot"/> class using
@@ -38,7 +38,7 @@ namespace Waterbot
         /// <param name="config">The configuration to use.</param>
         public Waterbot(Configuration config)
         {
-            currentConfig = config;
+            _currentConfig = config;
             TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
@@ -76,11 +76,11 @@ namespace Waterbot
         {
             get
             {
-                if (behavior == null)
-                    behavior = CreateBehavior();
-                return behavior;
+                if (_behavior == null)
+                    _behavior = CreateBehavior();
+                return _behavior;
             }
-            set { behavior = value; }
+            set { _behavior = value; }
         }
 
         /// <summary>
@@ -93,12 +93,12 @@ namespace Waterbot
         /// </summary>
         public Configuration Config
         {
-            get { return currentConfig; }
+            get { return _currentConfig; }
             set
             {
-                if (currentConfig != value)
+                if (_currentConfig != value)
                 {
-                    currentConfig = value;
+                    _currentConfig = value;
                     OnConfigChanged(EventArgs.Empty);
                 }
             }
@@ -183,7 +183,7 @@ namespace Waterbot
 
             var thread = new Thread(async () =>
             {
-                await RunAsync(cancelSource.Token);
+                await RunAsync(_cancelSource.Token);
             });
             thread.Start();
         }
@@ -197,7 +197,7 @@ namespace Waterbot
         /// </returns>
         public async Task StopAsync()
         {
-            cancelSource.Cancel();
+            _cancelSource.Cancel();
 
             foreach (var channel in Channels)
             {
@@ -242,14 +242,14 @@ namespace Waterbot
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Auto-implemented property is disposed")]
         protected virtual void Dispose(bool disposing)
         {
-            if (!isDisposed)
+            if (!_isDisposed)
             {
                 if (disposing)
                 {
                     TwitchChat?.Dispose();
                 }
 
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 
