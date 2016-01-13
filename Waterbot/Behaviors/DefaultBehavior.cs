@@ -40,10 +40,7 @@ namespace Waterbot
         {
             var n = Config.Behavior.IdleMessages.Count;
             var i = IdleCounts.Get(channel.Name);
-            var format = Config.Behavior.IdleMessages[i];
-            var text = string.Format(format,
-                channel, // {0}
-                Config.Credentials.UserName); // {1}
+            var text = Config.Behavior.IdleMessages[i];
 
             IdleCounts[channel.Name] = (i + 1) % n;
 

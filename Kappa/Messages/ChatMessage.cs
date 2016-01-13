@@ -166,6 +166,26 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Gets the raw IRC command for sending this message, using the
+        /// specified function to format the contents of the message.
+        /// </summary>
+        /// <param name="formatter">
+        /// A function that can be used to format the contents of the message
+        /// before it is sent.
+        /// </param>
+        /// <returns>A string containing the IRC message to send.</returns>
+        public string ConstructCommand(Func<string, string> formatter)
+        {
+            Command = Commands.PRIVMSG;
+
+            Parameters.Clear();
+            Parameters.Add(Channel.ToIrcChannel());
+            Parameters.Add(formatter(Contents));
+
+            return base.ConstructCommand();
+        }
+
+        /// <summary>
         /// Creates a new instance of the <see cref="ChatMessage"/> class with
         /// the specified response text.
         /// </summary>

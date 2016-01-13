@@ -138,11 +138,7 @@ namespace Waterbot
             OnChannelJoined(new ChannelEventArgs(new Channel(channel)));
 
             var message = Behavior.GetJoinMessage(channel);
-            if (message != null)
-            {
-                await TwitchChat.SendMessage(message);
-                OnMessageSent(new ChatMessageEventArgs(message));
-            }
+            await SendMessageAsync(message);
         }
 
         /// <summary>
@@ -163,6 +159,23 @@ namespace Waterbot
 
                 // JOINs are rate-limited at 50 per 15 seconds => 3/s
                 await Task.Delay(333);
+            }
+        }
+
+        /// <summary>
+        /// Sends a chat message.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual async Task SendMessageAsync(ChatMessage message)
+        {
+            if (message != null)
+            {
+                await TwitchChat.SendMessage(message);
+                OnMessageSent(new ChatMessageEventArgs(message));
             }
         }
 
@@ -202,11 +215,7 @@ namespace Waterbot
             foreach (var channel in Channels)
             {
                 var message = Behavior.GetPartMessage(channel.ToIrcChannel());
-                if (message != null)
-                {
-                    await TwitchChat.SendMessage(message);
-                    OnMessageSent(new ChatMessageEventArgs(message));
-                }
+                await SendMessageAsync(message);
             }
 
             await TwitchChat.DisconnectAsync();
@@ -336,11 +345,7 @@ namespace Waterbot
                     if (elapsed > Config.Behavior.IdleTimeout)
                     {
                         var message = await Behavior.GetIdleMessage(new Channel(channel));
-                        if (message != null)
-                        {
-                            await TwitchChat.SendMessage(message);
-                            OnMessageSent(new ChatMessageEventArgs(message));
-                        }
+                        await SendMessageAsync(message);
 
                         LastActivity[channel] = DateTime.Now;
                     }
@@ -368,11 +373,7 @@ namespace Waterbot
             }
 
             var response = await Behavior.ProcessMessage(e.Message);
-            if (response != null)
-            {
-                await TwitchChat.SendMessage(response);
-                OnMessageSent(new ChatMessageEventArgs(response));
-            }
+            await SendMessageAsync(response);
         }
     }
 }

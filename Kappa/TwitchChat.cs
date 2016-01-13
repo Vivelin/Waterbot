@@ -173,7 +173,10 @@ namespace Kappa
         {
             if (message != null)
             {
-                var raw = message.ConstructCommand();
+                var raw = message.ConstructCommand(contents =>
+                {
+                    return string.Format(contents, message.Channel, UserName);
+                });
                 _sendMessageTask = new TaskCompletionSource<bool>();
 
                 IrcClient.SendRawMessage(raw);
