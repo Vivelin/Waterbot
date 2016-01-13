@@ -140,10 +140,10 @@ namespace Waterbot
                     return await Uptime(message);
 
                 default:
-                    if (Config.Behavior.StaticCommands.ContainsKey(command))
+                    if (Config.Behavior.SimpleCommands.ContainsKey(command))
                     {
-                        var response = Config.Behavior.StaticCommands[command];
-                        return message.CreateResponse(response);
+                        var response = Config.Behavior.SimpleCommands[command];
+                        return message.CreateResponse(response.Sample(RNG));
                     }
                     break;
             }

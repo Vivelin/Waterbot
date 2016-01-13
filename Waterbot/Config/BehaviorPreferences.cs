@@ -15,7 +15,7 @@ namespace Waterbot.Config
         /// </summary>
         public BehaviorPreferences()
         {
-            Properties = new Dictionary<string, IList<string>>();
+            Properties = new Dictionary<string, PhraseSet>();
             DefaultResponses = new List<string>()
             {
                 "I don't get it.", "What?", "What is it?", "What do you want?",
@@ -32,9 +32,9 @@ namespace Waterbot.Config
                 "Hey", "Hi", "Yo", "Hej", "'sup", "Hello", "Hallo", "Hoi", "Hiya",
                 "What's up", "Whatsup", "HeyGuys"
             };
-            StaticCommands = new Dictionary<string, string>
+            SimpleCommands = new Dictionary<string, PhraseSet>
             {
-                { "help", "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot" }
+                { "help", new PhraseSet { "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot" } }
             };
             CommandAliases = new Dictionary<string, string>
             {
@@ -106,15 +106,16 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IDictionary<string, IList<string>> Properties { get; set; }
+        public IDictionary<string, PhraseSet> Properties { get; set; }
 
         /// <summary>
-        /// Gets or sets a dictionary that maps commands to static responses.
+        /// Gets or sets a dictionary that maps simple commands to text
+        /// responses.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IDictionary<string, string> StaticCommands { get; set; }
+        public IDictionary<string, PhraseSet> SimpleCommands { get; set; }
 
         /// <summary>
         /// Gets or sets a list of possible responses when the uptime command is
