@@ -16,18 +16,18 @@ namespace Waterbot.Config
         public BehaviorPreferences()
         {
             Properties = new Dictionary<string, PhraseSet>();
-            DefaultResponses = new List<string>()
+            DefaultResponses = new PhraseSet
             {
                 "I don't get it.", "What?", "What is it?", "What do you want?",
                 "What do you want?", "Are you talking to me?",
                 "Did you say something?"
             };
-            Farewells = new List<string>
+            Farewells = new PhraseSet
             {
                 "I should go.", "I'll be going now.", "Bye!", "See ya!",
                 "Cave Johnson, we're done here."
             };
-            Greetings = new List<string>
+            Greetings = new PhraseSet
             {
                 "Hey", "Hi", "Yo", "Hej", "'sup", "Hello", "Hallo", "Hoi", "Hiya",
                 "What's up", "Whatsup", "HeyGuys"
@@ -40,11 +40,11 @@ namespace Waterbot.Config
             {
                 { "botinfo", "help" }
             };
-            UptimeOfflineResponses = new List<string>
+            UptimeOfflineResponses = new PhraseSet
             {
                 "{0} is offline."
             };
-            IdleMessages = new List<string>
+            IdleMessages = new PhraseSet
             {
                 "Kappa",
             };
@@ -67,7 +67,7 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IList<string> DefaultResponses { get; set; }
+        public PhraseSet DefaultResponses { get; set; }
 
         /// <summary>
         /// Gets or sets a list of possible responses when the bot is leaving a
@@ -76,7 +76,7 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IList<string> Farewells { get; set; }
+        public PhraseSet Farewells { get; set; }
 
         /// <summary>
         /// Gets or sets a list of greetings to respond to and with.
@@ -84,7 +84,7 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IList<string> Greetings { get; set; }
+        public PhraseSet Greetings { get; set; }
 
         /// <summary>
         /// Gets or sets a list of static messages to show periodically when the
@@ -93,7 +93,7 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IList<string> IdleMessages { get; set; }
+        public PhraseSet IdleMessages { get; set; }
 
         /// <summary>
         /// Gets or sets the time it takes for the bot to get bored.
@@ -124,7 +124,7 @@ namespace Waterbot.Config
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
-        public IList<string> UptimeOfflineResponses { get; set; }
+        public PhraseSet UptimeOfflineResponses { get; set; }
 
         /// <summary>
         /// Gets the custom property with the specified key.
@@ -134,7 +134,7 @@ namespace Waterbot.Config
         /// The property with the specified key, or <c>null</c> if the specified
         /// key does not exist.
         /// </returns>
-        public IList<string> this[string key]
+        public PhraseSet this[string key]
         {
             get
             {

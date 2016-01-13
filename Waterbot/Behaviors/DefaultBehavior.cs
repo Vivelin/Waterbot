@@ -18,7 +18,6 @@ namespace Waterbot
         /// <param name="config">The current configuration.</param>
         public DefaultBehavior(Configuration config) : base(config)
         {
-            RNG = new Random();
             IdleCounts = new Dictionary<string, int>();
         }
 
@@ -27,11 +26,6 @@ namespace Waterbot
         /// cycle for each channel.
         /// </summary>
         protected IDictionary<string, int> IdleCounts { get; }
-
-        /// <summary>
-        /// Gets a random number generator for this instance.
-        /// </summary>
-        protected Random RNG { get; }
 
         /// <summary>
         /// When overridden in a derived class, determines the bot's messages
@@ -67,7 +61,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetJoinMessage(string channel)
         {
-            var greeting = Config.Behavior.Greetings.Sample(RNG);
+            var greeting = Config.Behavior.Greetings.Sample();
             var text = $"{greeting} chat!";
             return new ChatMessage(channel, text);
         }
@@ -82,7 +76,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetPartMessage(string channel)
         {
-            var farewell = Config.Behavior.Farewells.Sample(RNG);
+            var farewell = Config.Behavior.Farewells.Sample();
             return new ChatMessage(channel, farewell);
         }
 
@@ -96,7 +90,7 @@ namespace Waterbot
         /// </returns>
         public virtual ChatMessage Greet(ChatMessage message)
         {
-            var greeting = Config.Behavior.Greetings.Sample(RNG);
+            var greeting = Config.Behavior.Greetings.Sample();
             var text = $"{greeting} {message.DisplayName}!";
             return message.CreateResponse(text);
         }
@@ -116,7 +110,7 @@ namespace Waterbot
                 if (message.MentionsAny(Config.Behavior.Greetings))
                     return Task.FromResult(Greet(message));
 
-                var response = Config.Behavior.DefaultResponses.Sample(RNG);
+                var response = Config.Behavior.DefaultResponses.Sample();
                 return Task.FromResult(message.CreateResponse(response, true));
             }
 
@@ -143,7 +137,7 @@ namespace Waterbot
                     if (Config.Behavior.SimpleCommands.ContainsKey(command))
                     {
                         var response = Config.Behavior.SimpleCommands[command];
-                        return message.CreateResponse(response.Sample(RNG));
+                        return message.CreateResponse(response.Sample());
                     }
                     break;
             }
@@ -164,7 +158,7 @@ namespace Waterbot
             var stream = await message.Channel.GetStreamAsync();
             if (stream == null)
             {
-                var format = Config.Behavior.UptimeOfflineResponses.Sample(RNG);
+                var format = Config.Behavior.UptimeOfflineResponses.Sample();
                 var response = string.Format(format, message.Channel);
 
                 return message.CreateResponse(response);

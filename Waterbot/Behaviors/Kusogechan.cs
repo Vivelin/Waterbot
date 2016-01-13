@@ -17,7 +17,7 @@ namespace Waterbot.Behaviors
         /// <param name="config">The current configuration.</param>
         public Kusogechan(Configuration config) : base(config)
         {
-            Echo = Config.Behavior["Echo"] ?? new List<string> { "JediRosh", "AWOOOO", "Poi!" };
+            Echo = Config.Behavior["Echo"] ?? new PhraseSet { "JediRosh", "AWOOOO", "Poi!" };
         }
 
         /// <summary>

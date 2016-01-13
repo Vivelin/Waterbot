@@ -76,25 +76,11 @@ namespace Waterbot.Common
         /// <returns>A random element from the list.</returns>
         public static T Sample<T>(this IList<T> list)
         {
-            var rng = new Random();
-            return list.Sample(rng);
-        }
-
-        /// <summary>
-        /// Returns a random element from the list using the specified random
-        /// number generator.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in the list.</typeparam>
-        /// <param name="list">The list to return an element from.</param>
-        /// <param name="rng">The random number generator to use.</param>
-        /// <returns>A random element from the list.</returns>
-        public static T Sample<T>(this IList<T> list, Random rng)
-        {
             if (list == null) throw new ArgumentNullException(nameof(list));
             if (list.Count == 0) return default(T);
             if (list.Count == 1) return list[0];
 
-            var i = rng.Next(0, list.Count);
+            var i = RNG.Next(0, list.Count);
             return list[i];
         }
     }
