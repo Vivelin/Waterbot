@@ -31,10 +31,31 @@ namespace Kappa
         public Channel Channel { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the notice is an error.
+        /// </summary>
+        public bool IsError
+        {
+            get
+            {
+                switch (MsgID)
+                {
+                    case NoticeTypes.BadTimeoutSelf:
+                    case NoticeTypes.BadTimeoutMod:
+                    case NoticeTypes.BadTimeoutBroadcaster:
+                    default: // TODO: Once we know a lot more message types, switch default back to false
+                        return true;
+
+                    case NoticeTypes.HostOn:
+                        return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the notice message ID.
         /// </summary>
         /// <remarks>
-        /// For a list of known message IDs, see <see cref="MsgIDs"/>.
+        /// For a list of known message IDs, see <see cref="NoticeTypes"/>.
         /// </remarks>
         public string MsgID { get; }
 

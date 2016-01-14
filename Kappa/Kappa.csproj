@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="ApiObject.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="Constants\MsgIDs.cs" />
+    <Compile Include="Constants\NoticeTypes.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Messages\NoticeMessage.cs" />
     <Compile Include="Messages\PartMessage.cs" />

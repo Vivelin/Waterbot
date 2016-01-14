@@ -52,9 +52,7 @@ namespace Waterbot.Config
             IdleTimeout = new TimeSpan(0, 15, 0);
             FailureMessages = new PhraseSet
             {
-                "\"{2}\" ¯\\_(ツ)_/¯",
-                "You want me to do WHAT?",
-                "How?"
+                "\"{2}\" ¯\\_(ツ)_/¯"
             };
         }
 

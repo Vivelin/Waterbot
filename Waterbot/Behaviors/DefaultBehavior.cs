@@ -37,12 +37,17 @@ namespace Waterbot
         /// </returns>
         public override Task<ChatMessage> GetFailureResponse(NoticeMessage message)
         {
-            var format = Config.Behavior.FailureMessages.Sample();
-            var text = string.Format(format,
-                message.Channel, Config.Credentials.UserName, message.Text);
+            if (message.IsError)
+            {
+                var format = Config.Behavior.FailureMessages.Sample();
+                var text = string.Format(format,
+                    message.Channel, Config.Credentials.UserName, message.Text);
 
-            var response = new ChatMessage(message.Channel, text);
-            return Task.FromResult(response);
+                var response = new ChatMessage(message.Channel, text);
+                return Task.FromResult(response);
+            }
+
+            return Task.FromResult<ChatMessage>(null);
         }
 
         /// <summary>

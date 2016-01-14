@@ -168,6 +168,18 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Gets a value indicating whether the user who sent the message is the
+        /// Twitch bot that sends notifications to chat.
+        /// </summary>
+        public bool IsTwitchNotify
+        {
+            get
+            {
+                return string.Compare(UserName, "twitchnotify", true) == 0;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the user being replied to.
         /// </summary>
         public string Target { get; }
