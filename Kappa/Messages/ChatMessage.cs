@@ -16,6 +16,8 @@ namespace Kappa
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
         /// </summary>
+        /// <param name="channel">The name of the channel.</param>
+        /// <param name="contents">The contents of the message.</param>
         public ChatMessage(string channel, string contents) : base()
         {
             Channel = new Channel(channel);
@@ -25,10 +27,25 @@ namespace Kappa
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
         /// </summary>
+        /// <param name="channel">The channel to send a message to.</param>
+        /// <param name="contents">The contents of the message.</param>
         public ChatMessage(Channel channel, string contents) : base()
         {
             Channel = channel;
             Contents = contents;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+        /// </summary>
+        /// <param name="channel">The channel to send a message to.</param>
+        /// <param name="contents">The contents of the message.</param>
+        /// <param name="target">The user to reply to.</param>
+        public ChatMessage(Channel channel, string contents, string target) : base()
+        {
+            Channel = channel;
+            Contents = contents;
+            Target = target;
         }
 
         /// <summary>
@@ -151,6 +168,11 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Gets or sets the user being replied to.
+        /// </summary>
+        public string Target { get; }
+
+        /// <summary>
         /// Gets the raw IRC command for sending this message.
         /// </summary>
         /// <returns>A string containing the IRC message to send.</returns>
@@ -169,6 +191,9 @@ namespace Kappa
         /// Gets the raw IRC command for sending this message, using the
         /// specified function to format the contents of the message.
         /// </summary>
+        /// <remarks>
+        /// Calling this overload will permanently format the message contents.
+        /// </remarks>
         /// <param name="formatter">
         /// A function that can be used to format the contents of the message
         /// before it is sent.
@@ -178,9 +203,11 @@ namespace Kappa
         {
             Command = Commands.PRIVMSG;
 
+            Contents = formatter(Contents);
+
             Parameters.Clear();
             Parameters.Add(Channel.ToIrcChannel());
-            Parameters.Add(formatter(Contents));
+            Parameters.Add(Contents);
 
             return base.ConstructCommand();
         }
@@ -193,7 +220,7 @@ namespace Kappa
         /// <returns>A new <see cref="ChatMessage"/> object.</returns>
         public ChatMessage CreateResponse(string text)
         {
-            return new ChatMessage(Channel, text);
+            return CreateResponse(text, false);
         }
 
         /// <summary>
@@ -212,7 +239,7 @@ namespace Kappa
             if (mention && !Mentions(UserName))
                 text = $"@{DisplayName} {text}";
 
-            return new ChatMessage(Channel, text);
+            return new ChatMessage(Channel, text, DisplayName);
         }
 
         /// <summary>

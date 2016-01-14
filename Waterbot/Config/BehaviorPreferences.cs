@@ -34,7 +34,8 @@ namespace Waterbot.Config
             };
             SimpleCommands = new Dictionary<string, PhraseSet>
             {
-                { "help", new PhraseSet { "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot" } }
+                { "help", new PhraseSet { "This is a bot account. For more information, see https://github.com/horsedrowner/Waterbot" } },
+                { "purge me", new PhraseSet { ".timeout {2} 1" } }
             };
             CommandAliases = new Dictionary<string, string>
             {

@@ -175,7 +175,10 @@ namespace Kappa
             {
                 var raw = message.ConstructCommand(contents =>
                 {
-                    return string.Format(contents, message.Channel, UserName);
+                    return string.Format(contents,
+                        message.Channel,
+                        UserName,
+                        message.Target ?? message.Channel.ToString());
                 });
                 _sendMessageTask = new TaskCompletionSource<bool>();
 
