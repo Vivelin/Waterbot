@@ -182,6 +182,9 @@ namespace Kappa
                 case Commands.PART:
                     return new PartMessage(results);
 
+                case Commands.NOTICE:
+                    return new NoticeMessage(results);
+
                 default:
                     return new Message(results);
             }

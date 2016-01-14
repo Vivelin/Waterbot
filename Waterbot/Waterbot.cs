@@ -44,6 +44,7 @@ namespace Waterbot
             TwitchChat = new TwitchChat();
             TwitchChat.Disconnected += TwitchChat_Disconnected;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
+            TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
             Channels = new List<Channel>();
             LastActivity = new Dictionary<string, DateTime>();
@@ -68,6 +69,12 @@ namespace Waterbot
         /// Occurs when a chat message was sent by the bot.
         /// </summary>
         public event EventHandler<ChatMessageEventArgs> MessageSent;
+
+        /// <summary>
+        /// Occurs when a notice was received.
+        /// </summary>
+        [Obsolete("This is a temporary event and will be replaced by more specific events in the future.")]
+        public event EventHandler<MessageEventArgs> NoticeReceived;
 
         /// <summary>
         /// Gets or sets <see cref="Waterbot"/>'s behavior.
@@ -320,6 +327,18 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Raises the <see cref="NoticeReceived"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="MessageEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnNoticeReceived(MessageEventArgs args)
+        {
+            NoticeReceived?.Invoke(this, args);
+        }
+
+        /// <summary>
         /// Performs background operations that do not involve responding to
         /// events.
         /// </summary>
@@ -373,6 +392,14 @@ namespace Waterbot
             }
 
             var response = await Behavior.ProcessMessage(e.Message);
+            await SendMessageAsync(response);
+        }
+
+        private async void TwitchChat_NoticeReceived(object sender, MessageEventArgs e)
+        {
+            OnNoticeReceived(e);
+
+            var response = await Behavior.GetFailureResponse(e.Message as NoticeMessage);
             await SendMessageAsync(response);
         }
     }

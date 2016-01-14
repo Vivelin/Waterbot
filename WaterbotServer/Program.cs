@@ -100,6 +100,7 @@ namespace Waterbot.WaterbotServer
             {
                 waterbot.MessageReceived += Waterbot_MessageReceived;
                 waterbot.MessageSent += Waterbot_MessageSent;
+                waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
                 await waterbot.StartAsync();
                 Console.WriteLine("Press Ctrl+C to stop Waterbot");
@@ -148,6 +149,22 @@ namespace Waterbot.WaterbotServer
 
             Console.WriteLine(e.Message.Contents);
             Console.ResetColor();
+        }
+
+        private static void Waterbot_NoticeReceived(object sender, MessageEventArgs e)
+        {
+            var message = e.Message as NoticeMessage;
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(message.Channel);
+            Console.Write("] ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(message.Text);
+
+            Console.ResetColor();
+            Console.WriteLine();
         }
     }
 }

@@ -50,6 +50,12 @@ namespace Waterbot.Config
                 "Kappa",
             };
             IdleTimeout = new TimeSpan(0, 15, 0);
+            FailureMessages = new PhraseSet
+            {
+                "\"{2}\" ¯\\_(ツ)_/¯",
+                "You want me to do WHAT?",
+                "How?"
+            };
         }
 
         /// <summary>
@@ -69,6 +75,15 @@ namespace Waterbot.Config
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
         public PhraseSet DefaultResponses { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of messages to show when the bot receives a
+        /// notice or an error from the Twitch chat server.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public PhraseSet FailureMessages { get; set; }
 
         /// <summary>
         /// Gets or sets a list of possible responses when the bot is leaving a

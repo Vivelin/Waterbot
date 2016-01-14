@@ -49,6 +49,11 @@ namespace Kappa
         public event EventHandler<ChatMessageEventArgs> MessageReceived;
 
         /// <summary>
+        /// Occurs when a notice has been received.
+        /// </summary>
+        public event EventHandler<MessageEventArgs> NoticeReceived;
+
+        /// <summary>
         /// Occurs when someone has joined chat.
         /// </summary>
         public event EventHandler<MessageEventArgs> ViewerJoined;
@@ -230,6 +235,16 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Raises the <see cref="NoticeReceived"/> event.
+        /// </summary>
+        /// <param name="message">The message that was received.</param>
+        protected virtual void OnNoticeReceived(Message message)
+        {
+            var args = new MessageEventArgs(message);
+            NoticeReceived?.Invoke(this, args);
+        }
+
+        /// <summary>
         /// Raises the <see cref="ViewerJoined"/> event.
         /// </summary>
         /// <param name="message">The message that was received.</param>
@@ -291,10 +306,10 @@ namespace Kappa
                 OnViewerJoined(message);
             else if (message is PartMessage)
                 OnViewerLeft(message);
+            else if (message is NoticeMessage)
+                OnNoticeReceived(message);
             else
-            {
                 Trace.WriteLine(message.RawMessage, "Unhandled message received");
-            }
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)
