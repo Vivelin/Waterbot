@@ -10,12 +10,14 @@ namespace Kappa
     /// </summary>
     public class ChatMessage : Message
     {
-        private string contents;
-        private string normalizedContents;
+        private string _contents;
+        private string _normalizedContents;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
         /// </summary>
+        /// <param name="channel">The name of the channel.</param>
+        /// <param name="contents">The contents of the message.</param>
         public ChatMessage(string channel, string contents) : base()
         {
             Channel = new Channel(channel);
@@ -25,10 +27,25 @@ namespace Kappa
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.
         /// </summary>
+        /// <param name="channel">The channel to send a message to.</param>
+        /// <param name="contents">The contents of the message.</param>
         public ChatMessage(Channel channel, string contents) : base()
         {
             Channel = channel;
             Contents = contents;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+        /// </summary>
+        /// <param name="channel">The channel to send a message to.</param>
+        /// <param name="contents">The contents of the message.</param>
+        /// <param name="target">The user to reply to.</param>
+        public ChatMessage(Channel channel, string contents, User target) : base()
+        {
+            Channel = channel;
+            Contents = contents;
+            Target = target;
         }
 
         /// <summary>
@@ -46,8 +63,9 @@ namespace Kappa
             Channel = new Channel(Parameters[0]);
             Contents = Parameters[1];
 
-            DisplayName = Tags?.Get(MessageTags.DisplayName) ?? UserName;
-            if (DisplayName.Length == 0) DisplayName = UserName;
+            var displayName = Tags?.Get(MessageTags.DisplayName);
+            if (!string.IsNullOrEmpty(displayName))
+                User.Name = displayName;
         }
 
         /// <summary>
@@ -60,18 +78,13 @@ namespace Kappa
         /// </summary>
         public string Contents
         {
-            get { return contents; }
+            get { return _contents; }
             protected set
             {
-                contents = value;
-                normalizedContents = StringUtils.Normalize(value);
+                _contents = value;
+                _normalizedContents = StringUtils.Normalize(value);
             }
         }
-
-        /// <summary>
-        /// Gets the user's display name.
-        /// </summary>
-        public string DisplayName { get; protected internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is a
@@ -94,7 +107,7 @@ namespace Kappa
         {
             get
             {
-                return string.Compare(UserName, Channel.Name, true) == 0;
+                return string.Compare(User.Name, Channel.Name, true) == 0;
             }
         }
 
@@ -151,12 +164,54 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Gets a value indicating whether the user who sent the message is the
+        /// Twitch bot that sends notifications to chat.
+        /// </summary>
+        public bool IsTwitchNotify
+        {
+            get
+            {
+                return string.Compare(User.Name, "twitchnotify", true) == 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the user being replied to.
+        /// </summary>
+        public User Target { get; }
+
+        /// <summary>
         /// Gets the raw IRC command for sending this message.
         /// </summary>
         /// <returns>A string containing the IRC message to send.</returns>
         public override string ConstructCommand()
         {
             Command = Commands.PRIVMSG;
+
+            Parameters.Clear();
+            Parameters.Add(Channel.ToIrcChannel());
+            Parameters.Add(Contents);
+
+            return base.ConstructCommand();
+        }
+
+        /// <summary>
+        /// Gets the raw IRC command for sending this message, using the
+        /// specified function to format the contents of the message.
+        /// </summary>
+        /// <remarks>
+        /// Calling this overload will permanently format the message contents.
+        /// </remarks>
+        /// <param name="formatter">
+        /// A function that can be used to format the contents of the message
+        /// before it is sent.
+        /// </param>
+        /// <returns>A string containing the IRC message to send.</returns>
+        public string ConstructCommand(Func<string, string> formatter)
+        {
+            Command = Commands.PRIVMSG;
+
+            Contents = formatter(Contents);
 
             Parameters.Clear();
             Parameters.Add(Channel.ToIrcChannel());
@@ -173,7 +228,7 @@ namespace Kappa
         /// <returns>A new <see cref="ChatMessage"/> object.</returns>
         public ChatMessage CreateResponse(string text)
         {
-            return new ChatMessage(Channel, text);
+            return CreateResponse(text, false);
         }
 
         /// <summary>
@@ -189,10 +244,10 @@ namespace Kappa
         /// <returns>A new <see cref="ChatMessage"/> object.</returns>
         public ChatMessage CreateResponse(string text, bool mention)
         {
-            if (mention && !Mentions(UserName))
-                text = $"@{DisplayName} {text}";
+            if (mention && !Mentions(User.Name))
+                text = $"@{User.Name} {text}";
 
-            return new ChatMessage(Channel, text);
+            return new ChatMessage(Channel, text, User);
         }
 
         /// <summary>
@@ -205,7 +260,7 @@ namespace Kappa
         public bool Mentions(string value)
         {
             value = Regex.Escape(StringUtils.Normalize(value));
-            return Regex.IsMatch(normalizedContents, $"\\b{value}\\b", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(_normalizedContents, $"\\b{value}\\b", RegexOptions.IgnoreCase);
         }
 
         /// <summary>
@@ -234,7 +289,7 @@ namespace Kappa
         /// <returns>A string that represents this instance.</returns>
         public override string ToString()
         {
-            return $"{DisplayName}: {Contents}";
+            return $"{User}: {Contents}";
         }
     }
 }

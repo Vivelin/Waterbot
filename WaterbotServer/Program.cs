@@ -100,6 +100,7 @@ namespace Waterbot.WaterbotServer
             {
                 waterbot.MessageReceived += Waterbot_MessageReceived;
                 waterbot.MessageSent += Waterbot_MessageSent;
+                waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
                 await waterbot.StartAsync();
                 Console.WriteLine("Press Ctrl+C to stop Waterbot");
@@ -121,22 +122,32 @@ namespace Waterbot.WaterbotServer
             Console.Write(e.Message.Channel);
             Console.Write("] ");
 
-            if (e.Message.IsBroadcaster)
-                Console.ForegroundColor = ConsoleColor.Red;
-            else if (e.Message.IsAdmin)
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            else if (e.Message.IsMod)
-                Console.ForegroundColor = ConsoleColor.Green;
-            else if (e.Message.IsSub)
-                Console.ForegroundColor = ConsoleColor.Blue;
-            else
+            if (e.Message.IsTwitchNotify)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.WriteLine(e.Message.Contents);
+
                 Console.ResetColor();
+            }
+            else
+            {
+                if (e.Message.IsBroadcaster)
+                    Console.ForegroundColor = ConsoleColor.Red;
+                else if (e.Message.IsAdmin)
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                else if (e.Message.IsMod)
+                    Console.ForegroundColor = ConsoleColor.Green;
+                else if (e.Message.IsSub)
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                else
+                    Console.ResetColor();
 
-            Console.Write(e.Message.DisplayName);
-            Console.Write(": ");
+                Console.Write(e.Message.User);
+                Console.Write(": ");
 
-            Console.ResetColor();
-            Console.WriteLine(e.Message.Contents);
+                Console.ResetColor();
+                Console.WriteLine(e.Message.Contents);
+            }
         }
 
         private static void Waterbot_MessageSent(object sender, ChatMessageEventArgs e)
@@ -146,8 +157,23 @@ namespace Waterbot.WaterbotServer
             Console.Write(e.Message.Channel);
             Console.Write("] ");
 
-            Console.WriteLine(e.Message.Contents);
             Console.ResetColor();
+            Console.WriteLine(e.Message.Contents);
+        }
+
+        private static void Waterbot_NoticeReceived(object sender, MessageEventArgs e)
+        {
+            var message = e.Message as NoticeMessage;
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(message.Channel);
+            Console.Write("] ");
+
+            Console.Write(message.Text);
+
+            Console.ResetColor();
+            Console.WriteLine();
         }
     }
 }

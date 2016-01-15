@@ -26,10 +26,10 @@ namespace Waterbot
     /// </example>
     public class Waterbot : IDisposable
     {
-        private Behavior behavior = null;
-        private CancellationTokenSource cancelSource = new CancellationTokenSource();
-        private Configuration currentConfig = null;
-        private bool isDisposed = false;
+        private Behavior _behavior = null;
+        private CancellationTokenSource _cancelSource = new CancellationTokenSource();
+        private Configuration _currentConfig = null;
+        private bool _isDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Waterbot"/> class using
@@ -38,12 +38,13 @@ namespace Waterbot
         /// <param name="config">The configuration to use.</param>
         public Waterbot(Configuration config)
         {
-            currentConfig = config;
+            _currentConfig = config;
             TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
             TwitchChat.Disconnected += TwitchChat_Disconnected;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
+            TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
             Channels = new List<Channel>();
             LastActivity = new Dictionary<string, DateTime>();
@@ -70,17 +71,23 @@ namespace Waterbot
         public event EventHandler<ChatMessageEventArgs> MessageSent;
 
         /// <summary>
+        /// Occurs when a notice was received.
+        /// </summary>
+        [Obsolete("This is a temporary event and will be replaced by more specific events in the future.")]
+        public event EventHandler<MessageEventArgs> NoticeReceived;
+
+        /// <summary>
         /// Gets or sets <see cref="Waterbot"/>'s behavior.
         /// </summary>
         public Behavior Behavior
         {
             get
             {
-                if (behavior == null)
-                    behavior = CreateBehavior();
-                return behavior;
+                if (_behavior == null)
+                    _behavior = CreateBehavior();
+                return _behavior;
             }
-            set { behavior = value; }
+            set { _behavior = value; }
         }
 
         /// <summary>
@@ -93,12 +100,12 @@ namespace Waterbot
         /// </summary>
         public Configuration Config
         {
-            get { return currentConfig; }
+            get { return _currentConfig; }
             set
             {
-                if (currentConfig != value)
+                if (_currentConfig != value)
                 {
-                    currentConfig = value;
+                    _currentConfig = value;
                     OnConfigChanged(EventArgs.Empty);
                 }
             }
@@ -138,11 +145,7 @@ namespace Waterbot
             OnChannelJoined(new ChannelEventArgs(new Channel(channel)));
 
             var message = Behavior.GetJoinMessage(channel);
-            if (message != null)
-            {
-                await TwitchChat.SendMessage(message);
-                OnMessageSent(new ChatMessageEventArgs(message));
-            }
+            await SendMessageAsync(message);
         }
 
         /// <summary>
@@ -167,6 +170,23 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Sends a chat message.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual async Task SendMessageAsync(ChatMessage message)
+        {
+            if (message != null)
+            {
+                await TwitchChat.SendMessage(message);
+                OnMessageSent(new ChatMessageEventArgs(message));
+            }
+        }
+
+        /// <summary>
         /// Connects to Twitch chat and begins performing operations.
         /// </summary>
         /// <returns>
@@ -183,7 +203,7 @@ namespace Waterbot
 
             var thread = new Thread(async () =>
             {
-                await RunAsync(cancelSource.Token);
+                await RunAsync(_cancelSource.Token);
             });
             thread.Start();
         }
@@ -197,16 +217,12 @@ namespace Waterbot
         /// </returns>
         public async Task StopAsync()
         {
-            cancelSource.Cancel();
+            _cancelSource.Cancel();
 
             foreach (var channel in Channels)
             {
                 var message = Behavior.GetPartMessage(channel.ToIrcChannel());
-                if (message != null)
-                {
-                    await TwitchChat.SendMessage(message);
-                    OnMessageSent(new ChatMessageEventArgs(message));
-                }
+                await SendMessageAsync(message);
             }
 
             await TwitchChat.DisconnectAsync();
@@ -242,14 +258,14 @@ namespace Waterbot
         [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", Justification = "Auto-implemented property is disposed")]
         protected virtual void Dispose(bool disposing)
         {
-            if (!isDisposed)
+            if (!_isDisposed)
             {
                 if (disposing)
                 {
                     TwitchChat?.Dispose();
                 }
 
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 
@@ -311,6 +327,18 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Raises the <see cref="NoticeReceived"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="MessageEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnNoticeReceived(MessageEventArgs args)
+        {
+            NoticeReceived?.Invoke(this, args);
+        }
+
+        /// <summary>
         /// Performs background operations that do not involve responding to
         /// events.
         /// </summary>
@@ -336,11 +364,7 @@ namespace Waterbot
                     if (elapsed > Config.Behavior.IdleTimeout)
                     {
                         var message = await Behavior.GetIdleMessage(new Channel(channel));
-                        if (message != null)
-                        {
-                            await TwitchChat.SendMessage(message);
-                            OnMessageSent(new ChatMessageEventArgs(message));
-                        }
+                        await SendMessageAsync(message);
 
                         LastActivity[channel] = DateTime.Now;
                     }
@@ -361,18 +385,22 @@ namespace Waterbot
         {
             OnMessageReceived(e);
 
-            if (string.Compare(e.Message.UserName, Config.Credentials.UserName, true) == 0)
+            if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
                 Trace.WriteLine("I think I'm talking to myself.");
                 return;
             }
 
             var response = await Behavior.ProcessMessage(e.Message);
-            if (response != null)
-            {
-                await TwitchChat.SendMessage(response);
-                OnMessageSent(new ChatMessageEventArgs(response));
-            }
+            await SendMessageAsync(response);
+        }
+
+        private async void TwitchChat_NoticeReceived(object sender, MessageEventArgs e)
+        {
+            OnNoticeReceived(e);
+
+            var response = await Behavior.GetFailureResponse(e.Message as NoticeMessage);
+            await SendMessageAsync(response);
         }
     }
 }

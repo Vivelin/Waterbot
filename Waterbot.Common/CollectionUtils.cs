@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Waterbot.Common
 {
@@ -69,6 +70,34 @@ namespace Waterbot.Common
         }
 
         /// <summary>
+        /// Determines the index of a specific string in the list, ignoring or
+        /// honoring its case.
+        /// </summary>
+        /// <param name="list">The list to search.</param>
+        /// <param name="item">The string to locate in the list.</param>
+        /// <param name="ignoreCase">
+        /// <c>true</c> to ignore case during the comparison; otherwise,
+        /// <c>false</c>.
+        /// </param>
+        /// <returns>
+        /// The index of <paramref name="item"/> if found in the list;
+        /// otherwise, -1.
+        /// </returns>
+        public static int IndexOf(this IList<string> list, string item, bool ignoreCase)
+        {
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (string.Compare(list[i], item, ignoreCase) == 0)
+                        return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
         /// Returns a random element from the list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the list.</typeparam>
@@ -76,25 +105,11 @@ namespace Waterbot.Common
         /// <returns>A random element from the list.</returns>
         public static T Sample<T>(this IList<T> list)
         {
-            var rng = new Random();
-            return list.Sample(rng);
-        }
-
-        /// <summary>
-        /// Returns a random element from the list using the specified random
-        /// number generator.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in the list.</typeparam>
-        /// <param name="list">The list to return an element from.</param>
-        /// <param name="rng">The random number generator to use.</param>
-        /// <returns>A random element from the list.</returns>
-        public static T Sample<T>(this IList<T> list, Random rng)
-        {
             if (list == null) throw new ArgumentNullException(nameof(list));
             if (list.Count == 0) return default(T);
             if (list.Count == 1) return list[0];
 
-            var i = rng.Next(0, list.Count);
+            var i = RNG.Next(0, list.Count);
             return list[i];
         }
     }

@@ -10,7 +10,7 @@ namespace Kappa
     /// </summary>
     public abstract class TwitchApiObject : ApiObject
     {
-        private readonly Uri apiBase = new Uri("https://api.twitch.tv/kraken/");
+        private readonly Uri _apiBase = new Uri("https://api.twitch.tv/kraken/");
 
         /// <summary>
         /// Gets or sets the Twitch Developer Application's client ID.
@@ -21,7 +21,7 @@ namespace Kappa
         /// Gets the address at which the API is located.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2234:PassSystemUriObjectsInsteadOfStrings")]
-        protected override Uri ApiAddress => new Uri(apiBase, Endpoint);
+        protected override Uri ApiAddress => new Uri(_apiBase, Endpoint);
 
         /// <summary>
         /// When overridden in a derived object, gets the Twitch API endpoint to

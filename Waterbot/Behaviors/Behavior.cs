@@ -50,6 +50,20 @@ namespace Waterbot
         protected IList<Regex> CommandPatterns { get; }
 
         /// <summary>
+        /// When overridden in a derived class, determines the bot's response to
+        /// notices and error messages.
+        /// </summary>
+        /// <param name="message">The notice that was received.</param>
+        /// <returns>
+        /// A <see cref="Task"/> objec representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual Task<ChatMessage> GetFailureResponse(NoticeMessage message)
+        {
+            return Task.FromResult<ChatMessage>(null);
+        }
+
+        /// <summary>
         /// When overridden in a derived class, determines the bot's messages
         /// when idle in the specified channel.
         /// </summary>

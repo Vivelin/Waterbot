@@ -14,6 +14,11 @@ namespace Kappa
         public const string DisplayName = "display-name";
 
         /// <summary>
+        /// Indicates the notice message ID.
+        /// </summary>
+        public const string MsgID = "msg-id";
+
+        /// <summary>
         /// Indicates whether the user is subbed.
         /// </summary>
         public const string Subscriber = "subscriber";

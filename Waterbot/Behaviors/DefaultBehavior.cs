@@ -18,7 +18,6 @@ namespace Waterbot
         /// <param name="config">The current configuration.</param>
         public DefaultBehavior(Configuration config) : base(config)
         {
-            RNG = new Random();
             IdleCounts = new Dictionary<string, int>();
         }
 
@@ -29,9 +28,27 @@ namespace Waterbot
         protected IDictionary<string, int> IdleCounts { get; }
 
         /// <summary>
-        /// Gets a random number generator for this instance.
+        /// Determines the bot's default response to notices and error messages.
         /// </summary>
-        protected Random RNG { get; }
+        /// <param name="message">The notice that was received.</param>
+        /// <returns>
+        /// A <see cref="Task"/> objec representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public override Task<ChatMessage> GetFailureResponse(NoticeMessage message)
+        {
+            if (message.IsError)
+            {
+                var format = Config.Behavior.FailureMessages.Sample();
+                var text = string.Format(format,
+                    message.Channel, Config.Credentials.UserName, message.Text);
+
+                var response = new ChatMessage(message.Channel, text);
+                return Task.FromResult(response);
+            }
+
+            return Task.FromResult<ChatMessage>(null);
+        }
 
         /// <summary>
         /// When overridden in a derived class, determines the bot's messages
@@ -46,10 +63,7 @@ namespace Waterbot
         {
             var n = Config.Behavior.IdleMessages.Count;
             var i = IdleCounts.Get(channel.Name);
-            var format = Config.Behavior.IdleMessages[i];
-            var text = string.Format(format,
-                channel, // {0}
-                Config.Credentials.UserName); // {1}
+            var text = Config.Behavior.IdleMessages[i];
 
             IdleCounts[channel.Name] = (i + 1) % n;
 
@@ -67,7 +81,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetJoinMessage(string channel)
         {
-            var greeting = Config.Behavior.Greetings.Sample(RNG);
+            var greeting = Config.Behavior.Greetings.Sample();
             var text = $"{greeting} chat!";
             return new ChatMessage(channel, text);
         }
@@ -82,7 +96,7 @@ namespace Waterbot
         /// </returns>
         public override ChatMessage GetPartMessage(string channel)
         {
-            var farewell = Config.Behavior.Farewells.Sample(RNG);
+            var farewell = Config.Behavior.Farewells.Sample();
             return new ChatMessage(channel, farewell);
         }
 
@@ -96,8 +110,8 @@ namespace Waterbot
         /// </returns>
         public virtual ChatMessage Greet(ChatMessage message)
         {
-            var greeting = Config.Behavior.Greetings.Sample(RNG);
-            var text = $"{greeting} {message.DisplayName}!";
+            var greeting = Config.Behavior.Greetings.Sample();
+            var text = $"{greeting} {message.User}!";
             return message.CreateResponse(text);
         }
 
@@ -116,7 +130,7 @@ namespace Waterbot
                 if (message.MentionsAny(Config.Behavior.Greetings))
                     return Task.FromResult(Greet(message));
 
-                var response = Config.Behavior.DefaultResponses.Sample(RNG);
+                var response = Config.Behavior.DefaultResponses.Sample();
                 return Task.FromResult(message.CreateResponse(response, true));
             }
 
@@ -140,10 +154,10 @@ namespace Waterbot
                     return await Uptime(message);
 
                 default:
-                    if (Config.Behavior.StaticCommands.ContainsKey(command))
+                    if (Config.Behavior.SimpleCommands.ContainsKey(command))
                     {
-                        var response = Config.Behavior.StaticCommands[command];
-                        return message.CreateResponse(response);
+                        var response = Config.Behavior.SimpleCommands[command];
+                        return message.CreateResponse(response.Sample());
                     }
                     break;
             }
@@ -164,7 +178,7 @@ namespace Waterbot
             var stream = await message.Channel.GetStreamAsync();
             if (stream == null)
             {
-                var format = Config.Behavior.UptimeOfflineResponses.Sample(RNG);
+                var format = Config.Behavior.UptimeOfflineResponses.Sample();
                 var response = string.Format(format, message.Channel);
 
                 return message.CreateResponse(response);
