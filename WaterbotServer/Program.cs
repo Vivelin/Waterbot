@@ -142,7 +142,7 @@ namespace Waterbot.WaterbotServer
                 else
                     Console.ResetColor();
 
-                Console.Write(e.Message.DisplayName);
+                Console.Write(e.Message.User);
                 Console.Write(": ");
 
                 Console.ResetColor();

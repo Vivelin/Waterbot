@@ -385,7 +385,7 @@ namespace Waterbot
         {
             OnMessageReceived(e);
 
-            if (string.Compare(e.Message.UserName, Config.Credentials.UserName, true) == 0)
+            if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
                 Trace.WriteLine("I think I'm talking to myself.");
                 return;

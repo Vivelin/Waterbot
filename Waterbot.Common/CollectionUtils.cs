@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Waterbot.Common
 {
@@ -66,6 +67,34 @@ namespace Waterbot.Common
             TValue value = default(TValue);
             dictionary.TryGetValue(key, out value);
             return value;
+        }
+
+        /// <summary>
+        /// Determines the index of a specific string in the list, ignoring or
+        /// honoring its case.
+        /// </summary>
+        /// <param name="list">The list to search.</param>
+        /// <param name="item">The string to locate in the list.</param>
+        /// <param name="ignoreCase">
+        /// <c>true</c> to ignore case during the comparison; otherwise,
+        /// <c>false</c>.
+        /// </param>
+        /// <returns>
+        /// The index of <paramref name="item"/> if found in the list;
+        /// otherwise, -1.
+        /// </returns>
+        public static int IndexOf(this IList<string> list, string item, bool ignoreCase)
+        {
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (string.Compare(list[i], item, ignoreCase) == 0)
+                        return i;
+                }
+            }
+
+            return -1;
         }
 
         /// <summary>

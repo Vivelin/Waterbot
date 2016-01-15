@@ -111,7 +111,7 @@ namespace Waterbot
         public virtual ChatMessage Greet(ChatMessage message)
         {
             var greeting = Config.Behavior.Greetings.Sample();
-            var text = $"{greeting} {message.DisplayName}!";
+            var text = $"{greeting} {message.User}!";
             return message.CreateResponse(text);
         }
 

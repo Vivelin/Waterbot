@@ -41,7 +41,7 @@ namespace Kappa
         /// <param name="channel">The channel to send a message to.</param>
         /// <param name="contents">The contents of the message.</param>
         /// <param name="target">The user to reply to.</param>
-        public ChatMessage(Channel channel, string contents, string target) : base()
+        public ChatMessage(Channel channel, string contents, User target) : base()
         {
             Channel = channel;
             Contents = contents;
@@ -63,8 +63,9 @@ namespace Kappa
             Channel = new Channel(Parameters[0]);
             Contents = Parameters[1];
 
-            DisplayName = Tags?.Get(MessageTags.DisplayName) ?? UserName;
-            if (DisplayName.Length == 0) DisplayName = UserName;
+            var displayName = Tags?.Get(MessageTags.DisplayName);
+            if (!string.IsNullOrEmpty(displayName))
+                User.Name = displayName;
         }
 
         /// <summary>
@@ -84,11 +85,6 @@ namespace Kappa
                 _normalizedContents = StringUtils.Normalize(value);
             }
         }
-
-        /// <summary>
-        /// Gets the user's display name.
-        /// </summary>
-        public string DisplayName { get; protected internal set; }
 
         /// <summary>
         /// Gets a value indicating whether the user who sent the message is a
@@ -111,7 +107,7 @@ namespace Kappa
         {
             get
             {
-                return string.Compare(UserName, Channel.Name, true) == 0;
+                return string.Compare(User.Name, Channel.Name, true) == 0;
             }
         }
 
@@ -175,14 +171,14 @@ namespace Kappa
         {
             get
             {
-                return string.Compare(UserName, "twitchnotify", true) == 0;
+                return string.Compare(User.Name, "twitchnotify", true) == 0;
             }
         }
 
         /// <summary>
         /// Gets or sets the user being replied to.
         /// </summary>
-        public string Target { get; }
+        public User Target { get; }
 
         /// <summary>
         /// Gets the raw IRC command for sending this message.
@@ -248,10 +244,10 @@ namespace Kappa
         /// <returns>A new <see cref="ChatMessage"/> object.</returns>
         public ChatMessage CreateResponse(string text, bool mention)
         {
-            if (mention && !Mentions(UserName))
-                text = $"@{DisplayName} {text}";
+            if (mention && !Mentions(User.Name))
+                text = $"@{User.Name} {text}";
 
-            return new ChatMessage(Channel, text, DisplayName);
+            return new ChatMessage(Channel, text, User);
         }
 
         /// <summary>
@@ -293,7 +289,7 @@ namespace Kappa
         /// <returns>A string that represents this instance.</returns>
         public override string ToString()
         {
-            return $"{DisplayName}: {Contents}";
+            return $"{User}: {Contents}";
         }
     }
 }

@@ -34,7 +34,9 @@ namespace Kappa
             {
                 var i = results.Prefix.IndexOf('!');
                 if (i > 0)
-                    UserName = results.Prefix.Substring(0, i);
+                {
+                    User = new User(results.Prefix.Substring(0, i));
+                }
             }
         }
 
@@ -69,9 +71,9 @@ namespace Kappa
         public IReadOnlyDictionary<string, string> Tags { get; }
 
         /// <summary>
-        /// Gets the name of the user from which this message originates.
+        /// Gets the user from which this message originates.
         /// </summary>
-        public string UserName { get; protected internal set; }
+        public User User { get; protected internal set; }
 
         /// <summary>
         /// Parses the specified IRC message.

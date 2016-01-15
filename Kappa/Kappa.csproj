@@ -69,6 +69,7 @@
     <Compile Include="TwitchApiObject.cs" />
     <Compile Include="TwitchChat.cs" />
     <Compile Include="IrcUtil.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

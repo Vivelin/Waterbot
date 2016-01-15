@@ -132,7 +132,7 @@ namespace Kappa
         /// <summary>
         /// Joins the specified channel asynchronously.
         /// </summary>
-        /// <param name="channel">The names of the channel to join.</param>
+        /// <param name="channel">The name of the channel to join.</param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
@@ -146,6 +146,8 @@ namespace Kappa
             await _sendMessageTask.Task;
 
             _sendMessageTask = null;
+            var user = new User(channel);
+            await user.Load();
         }
 
         /// <summary>
@@ -183,7 +185,7 @@ namespace Kappa
                     return string.Format(contents,
                         message.Channel,
                         UserName,
-                        message.Target ?? message.Channel.ToString());
+                        message.Target?.Name ?? message.Channel.Name);
                 });
                 _sendMessageTask = new TaskCompletionSource<bool>();
 
@@ -191,8 +193,7 @@ namespace Kappa
                 await _sendMessageTask.Task;
 
                 _sendMessageTask = null;
-                message.UserName = UserName;
-                message.DisplayName = UserName;
+                message.User = new User(UserName);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -10,6 +11,9 @@ namespace Kappa
     [Serializable]
     public class Channel : TwitchApiObject
     {
+        private string _displayName;
+        private string _name;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Channel"/> class with
         /// the specified name.
@@ -17,25 +21,31 @@ namespace Kappa
         /// <param name="name">The name of the channel.</param>
         public Channel(string name)
         {
-            Name = IrcUtil.UnescapeChannelName(name);
+            _name = IrcUtil.UnescapeChannelName(name);
         }
 
         /// <summary>
         /// Gets the display name of the channel.
         /// </summary>
         [JsonProperty("display_name")]
-        public string DisplayName { get; protected set; }
+        public string Name
+        {
+            get
+            {
+                if (_displayName == null)
+                {
+                    var user = new User(_name);
+                    _displayName = user.Name;
+                }
+                return _displayName;
+            }
+            protected set { _displayName = value; }
+        }
 
         /// <summary>
-        /// Gets the name of the channel.
+        /// Gets the Twitch API endpoint for this channel.
         /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; protected set; }
-
-        /// <summary>
-        /// Gets the Twitch API endpoint for streams.
-        /// </summary>
-        protected override string Endpoint => "channels/" + Name;
+        protected override string Endpoint => $"channels/{_name}";
 
         /// <summary>
         /// Loads the stream data if the current channel is live; otherwise,
@@ -61,7 +71,7 @@ namespace Kappa
         /// <returns>The name of the channel, prefixed with a '#'.</returns>
         public string ToIrcChannel()
         {
-            return IrcUtil.EscapeChannelName(Name);
+            return IrcUtil.EscapeChannelName(_name);
         }
 
         /// <summary>
@@ -70,7 +80,7 @@ namespace Kappa
         /// <returns>A string representing the current channel.</returns>
         public override string ToString()
         {
-            return DisplayName ?? Name ?? base.ToString();
+            return Name;
         }
     }
 }
