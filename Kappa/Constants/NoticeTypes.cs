@@ -31,5 +31,10 @@ namespace Kappa
         /// Indicates the channel is hosting another channel.
         /// </summary>
         public const string HostOn = "host_on";
+
+        /// <summary>
+        /// Indicates a timeout command was successful.
+        /// </summary>
+        public const string TimeoutSuccess = "timeout_success";
     }
 }
