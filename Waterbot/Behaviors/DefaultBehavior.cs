@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Kappa;
 using Waterbot.Common;
@@ -116,6 +117,48 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Returns an enumerable collection of command factories.
+        /// </summary>
+        /// <returns>
+        /// An enumerable collection of objects that implement <see
+        /// cref="ICommandManufactorum"/>.
+        /// </returns>
+        protected IEnumerable<ICommandManufactorum> EnumerateCommandFactories()
+        {
+            var interfaceType = typeof(ICommandManufactorum);
+            var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass)
+                .Where(type => interfaceType.IsAssignableFrom(type));
+
+            foreach (var type in factorumTypes)
+            {
+                yield return Activator.CreateInstance(type, Config) as ICommandManufactorum;
+            }
+        }
+
+        /// <summary>
+        /// Returns a command factory that is capable of creating the specified
+        /// command.
+        /// </summary>
+        /// <param name="command">The command to create.</param>
+        /// <returns>
+        /// A command factory that is capable of creating the specified command;
+        /// if no command factories are applicable, returns <c>null</c>.
+        /// </returns>
+        protected ICommandManufactorum GetFactory(string command)
+        {
+            var factories = EnumerateCommandFactories();
+            foreach (var factorum in factories)
+            {
+                if (factorum.CanCreate(command))
+                    return factorum;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Determines the bot's default response to the specified message.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
@@ -141,57 +184,21 @@ namespace Waterbot
         /// Determines the bot's response to chat commands.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
-        /// <param name="command">The command to handle.</param>
+        /// <param name="args">The command to handle.</param>
         /// <returns>
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string command)
+        protected override async Task<ChatMessage> HandleCommand(ChatMessage message, string args)
         {
-            switch (command.ToLowerInvariant())
+            var factorum = GetFactory(args.ToLowerInvariant());
+            if (factorum != null)
             {
-                case "uptime":
-                    return await Uptime(message);
-
-                default:
-                    if (Config.Behavior.SimpleCommands.ContainsKey(command))
-                    {
-                        var response = Config.Behavior.SimpleCommands[command];
-                        return message.CreateResponse(response.Sample());
-                    }
-                    break;
+                var command = factorum.Create(args);
+                return await command.GetResponse(message);
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Determines the bot's response to the "uptime" command.
-        /// </summary>
-        /// <param name="message">The message to respond to.</param>
-        /// <returns>
-        /// A <see cref="ChatMessage"/> object that represents the message to
-        /// respond with, or <c>null</c>.
-        /// </returns>
-        protected virtual async Task<ChatMessage> Uptime(ChatMessage message)
-        {
-            var stream = await message.Channel.GetStreamAsync();
-            if (stream == null)
-            {
-                var format = Config.Behavior.UptimeOfflineResponses.Sample();
-                var response = string.Format(format, message.Channel);
-
-                return message.CreateResponse(response);
-            }
-            else
-            {
-                var startTime = stream.Started;
-                var elapsedTime = startTime.ToRelativeTimeString();
-
-                var response = string.Format("{0} started streaming {1}.",
-                    stream.Channel, elapsedTime);
-                return message.CreateResponse(response);
-            }
         }
     }
 }
