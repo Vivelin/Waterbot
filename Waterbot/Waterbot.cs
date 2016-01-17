@@ -124,6 +124,27 @@ namespace Waterbot
         protected TwitchChat TwitchChat { get; }
 
         /// <summary>
+        /// Returns an enumerable collection of command factories.
+        /// </summary>
+        /// <returns>
+        /// An enumerable collection of objects that implement <see
+        /// cref="ICommandManufactorum"/>.
+        /// </returns>
+        public static IEnumerable<ICommandManufactorum> EnumerateCommandFactories()
+        {
+            var interfaceType = typeof(ICommandManufactorum);
+            var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass)
+                .Where(type => interfaceType.IsAssignableFrom(type));
+
+            foreach (var type in factorumTypes)
+            {
+                yield return Activator.CreateInstance(type) as ICommandManufactorum;
+            }
+        }
+
+        /// <summary>
         /// Releases all resources used by the <see cref="Waterbot"/> object.
         /// </summary>
         public void Dispose()

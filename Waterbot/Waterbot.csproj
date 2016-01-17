@@ -52,6 +52,8 @@
     <Compile Include="Behaviors\Kusogechan.cs" />
     <Compile Include="Behaviors\NoBehavior.cs" />
     <Compile Include="ChannelEventArgs.cs" />
+    <Compile Include="Commands\CommandsCommand.cs" />
+    <Compile Include="Commands\CommandsCommandManufactorum.cs" />
     <Compile Include="Commands\SimpleCommand.cs" />
     <Compile Include="Commands\SimpleCommandManufactorum.cs" />
     <Compile Include="Commands\UptimeCommand.cs" />

@@ -117,27 +117,6 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Returns an enumerable collection of command factories.
-        /// </summary>
-        /// <returns>
-        /// An enumerable collection of objects that implement <see
-        /// cref="ICommandManufactorum"/>.
-        /// </returns>
-        protected IEnumerable<ICommandManufactorum> EnumerateCommandFactories()
-        {
-            var interfaceType = typeof(ICommandManufactorum);
-            var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass)
-                .Where(type => interfaceType.IsAssignableFrom(type));
-
-            foreach (var type in factorumTypes)
-            {
-                yield return Activator.CreateInstance(type, Config) as ICommandManufactorum;
-            }
-        }
-
-        /// <summary>
         /// Returns a command factory that is capable of creating the specified
         /// command.
         /// </summary>
@@ -148,9 +127,10 @@ namespace Waterbot
         /// </returns>
         protected ICommandManufactorum GetFactory(string command)
         {
-            var factories = EnumerateCommandFactories();
+            var factories = Waterbot.EnumerateCommandFactories();
             foreach (var factorum in factories)
             {
+                factorum.Configuration = Config;
                 if (factorum.CanCreate(command))
                     return factorum;
             }

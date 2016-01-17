@@ -12,16 +12,26 @@ namespace Waterbot.Commands
     /// </summary>
     public class UptimeCommandManufactorum : ICommandManufactorum
     {
-        private Configuration _config;
-
         /// <summary>
         /// Initializes a new instance of the <see
         /// cref="UptimeCommandManufactorum"/> class.
         /// </summary>
-        /// <param name="config">The configuration to use.</param>
-        public UptimeCommandManufactorum(Configuration config)
+        public UptimeCommandManufactorum()
         {
-            _config = config;
+        }
+
+        /// <summary>
+        /// Gets or sets the configuration to use.
+        /// </summary>
+        public Configuration Configuration { get; set; }
+
+        /// <summary>
+        /// Gets a collection of the publicly available commands this factory
+        /// can create.
+        /// </summary>
+        public IEnumerable<string> PublicCommands
+        {
+            get { yield return "uptime"; }
         }
 
         /// <summary>
@@ -48,7 +58,7 @@ namespace Waterbot.Commands
         /// </returns>
         public ICommand Create(string command)
         {
-            var responseSet = _config.Behavior.UptimeOfflineResponses;
+            var responseSet = Configuration.Behavior.UptimeOfflineResponses;
             return new UptimeCommand(responseSet);
         }
     }

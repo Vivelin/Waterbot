@@ -1,10 +1,23 @@
-﻿namespace Waterbot
+﻿using System.Collections.Generic;
+
+namespace Waterbot
 {
     /// <summary>
     /// Defines a class that can create <see cref="ICommand"/> instances.
     /// </summary>
     public interface ICommandManufactorum
     {
+        /// <summary>
+        /// Gets or sets the configuration to use.
+        /// </summary>
+        Configuration Configuration { get; set; }
+
+        /// <summary>
+        /// Gets a collection of the publicly available commands this factory
+        /// can create.
+        /// </summary>
+        IEnumerable<string> PublicCommands { get; }
+
         /// <summary>
         /// Indicates whether the command manufactorum is capable of creating
         /// commands for the specified command.

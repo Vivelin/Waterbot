@@ -1,18 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Waterbot.Commands
 {
     /// <summary>
     /// Represents a class that is capable of creating <see
-    /// cref="SimpleCommand"/> instances.
+    /// cref="CommandsCommand"/> instances.
     /// </summary>
-    public class SimpleCommandManufactorum : ICommandManufactorum
+    public class CommandsCommandManufactorum : ICommandManufactorum
     {
         /// <summary>
         /// Initializes a new instance of the <see
-        /// cref="SimpleCommandManufactorum"/> class.
+        /// cref="CommandsCommandManufactorum"/> class.
         /// </summary>
-        public SimpleCommandManufactorum()
+        public CommandsCommandManufactorum()
         {
         }
 
@@ -27,12 +31,12 @@ namespace Waterbot.Commands
         /// </summary>
         public IEnumerable<string> PublicCommands
         {
-            get { return Configuration.Behavior.SimpleCommands.Keys; }
+            get { yield return "commands"; }
         }
 
         /// <summary>
-        /// Indicates whether the <see cref="SimpleCommandManufactorum"/> is
-        /// capable of creating the specified command.
+        /// Indicates whether the manufactorum is capable of creating the
+        /// specified command.
         /// </summary>
         /// <param name="command">The name of the command.</param>
         /// <returns>
@@ -41,7 +45,7 @@ namespace Waterbot.Commands
         /// </returns>
         public bool CanCreate(string command)
         {
-            return Configuration.Behavior.SimpleCommands.ContainsKey(command);
+            return string.Compare(command, "commands", true) == 0;
         }
 
         /// <summary>
@@ -54,8 +58,15 @@ namespace Waterbot.Commands
         /// </returns>
         public ICommand Create(string command)
         {
-            var responseSet = Configuration.Behavior.SimpleCommands[command];
-            return new SimpleCommand(responseSet);
+            var commands = new List<string>();
+            var factories = Waterbot.EnumerateCommandFactories();
+            foreach (var factory in factories)
+            {
+                factory.Configuration = Configuration;
+                commands.AddRange(factory.PublicCommands);
+            }
+
+            return new CommandsCommand(commands);
         }
     }
 }
