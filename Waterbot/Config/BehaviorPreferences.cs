@@ -49,7 +49,7 @@ namespace Waterbot.Config
             {
                 "Kappa",
             };
-            IdleTimeout = new TimeSpan(0, 15, 0);
+            IdleTimeout = new TimeSpan(1, 0, 0);
             FailureMessages = new PhraseSet
             {
                 "\"{2}\" ¯\\_(ツ)_/¯"
