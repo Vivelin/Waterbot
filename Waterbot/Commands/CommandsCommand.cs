@@ -8,7 +8,7 @@ using Kappa;
 namespace Waterbot.Commands
 {
     /// <summary>
-    /// Represents as command that shows the available commands.
+    /// Represents a command that shows the available commands.
     /// </summary>
     public class CommandsCommand : ICommand
     {
