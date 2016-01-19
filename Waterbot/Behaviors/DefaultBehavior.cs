@@ -80,7 +80,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public override ChatMessage GetJoinMessage(string channel)
+        public override ChatMessage GetJoinMessage(Channel channel)
         {
             var greeting = Config.Behavior.Greetings.Sample();
             var text = $"{greeting} chat!";
@@ -95,7 +95,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public override ChatMessage GetPartMessage(string channel)
+        public override ChatMessage GetPartMessage(Channel channel)
         {
             var farewell = Config.Behavior.Farewells.Sample();
             return new ChatMessage(channel, farewell);

@@ -30,6 +30,8 @@ namespace Kappa
                 FloodPreventer = new IrcStandardFloodPreventer(10, 1000)
             };
 
+            IrcClient.Error += (sender, e) => Console.WriteLine(e.Error);
+
             IrcClient.Connected += IrcClient_Connected;
             IrcClient.ConnectFailed += IrcClient_ConnectFailed;
             IrcClient.Disconnected += IrcClient_Disconnected;
@@ -62,6 +64,15 @@ namespace Kappa
         /// Occurs when someone has left chat.
         /// </summary>
         public event EventHandler<MessageEventArgs> ViewerLeft;
+
+        /// <summary>
+        /// Gets a value indicating whether a connection with Twitch chat
+        /// servers is currently established.
+        /// </summary>
+        public bool IsConnected
+        {
+            get { return IrcClient.IsConnected; }
+        }
 
         /// <summary>
         /// Gets the name of the user that is connected to Twitch.
@@ -132,12 +143,12 @@ namespace Kappa
         /// <summary>
         /// Joins the specified channel asynchronously.
         /// </summary>
-        /// <param name="channel">The name of the channel to join.</param>
+        /// <param name="channel">The channel to join.</param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task JoinAsync(string channel)
+        public async Task JoinAsync(Channel channel)
         {
             _sendMessageTask = new TaskCompletionSource<bool>();
 
@@ -163,8 +174,9 @@ namespace Kappa
         /// </returns>
         public async Task JoinAsync(IEnumerable<string> channels)
         {
-            foreach (var channel in channels)
+            foreach (var channelName in channels)
             {
+                var channel = new Channel(channelName);
                 await JoinAsync(channel);
 
                 // JOINs are rate-limited at 50 per 15 seconds => 3/s

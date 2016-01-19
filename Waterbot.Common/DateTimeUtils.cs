@@ -13,16 +13,38 @@ namespace Waterbot.Common
     {
         /// <summary>
         /// Compares a date to the current time and returns a text
-        /// representation of the elapsed time.
+        /// representation of the time difference.
         /// </summary>
         /// <param name="date">
         /// The <see cref="DateTime"/> object to compare.
         /// </param>
-        /// <returns>A string representation of the elapsed time.</returns>
+        /// <returns>A string representation of the time difference.</returns>
         public static string ToRelativeTimeString(this DateTime date)
         {
-            var elapsed = DateTime.Now - date;
-            return elapsed.ToText();
+            var text = new StringBuilder();
+
+            if (DateTime.Now > date)
+            {
+                var elapsed = DateTime.Now - date;
+                if (elapsed.TotalSeconds >= 2)
+                    text.AppendFormat("{0} ago", elapsed.ToText());
+                else
+                    text.Append("just now");
+            }
+            else if (DateTime.Now > date)
+            {
+                var interval = date - DateTime.Now;
+                if (interval.TotalSeconds >= 2)
+                    text.AppendFormat("in {0}", interval.ToText());
+                else
+                    text.Append("about now");
+            }
+            else
+            {
+                text.Append("now");
+            }
+
+            return text.ToString();
         }
     }
 }

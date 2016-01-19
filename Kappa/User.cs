@@ -28,6 +28,16 @@ namespace Kappa
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="User"/> class for the
+        /// specified channel.
+        /// </summary>
+        /// <param name="channel">The user's channel.</param>
+        public User(Channel channel)
+        {
+            _userName = channel.Name;
+        }
+
+        /// <summary>
         /// Gets or sets the name of the user.
         /// </summary>
         /// <remarks>

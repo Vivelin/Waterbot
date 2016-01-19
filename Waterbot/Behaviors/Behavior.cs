@@ -83,7 +83,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public virtual ChatMessage GetJoinMessage(string channel)
+        public virtual ChatMessage GetJoinMessage(Channel channel)
         {
             return null;
         }
@@ -97,7 +97,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public virtual ChatMessage GetPartMessage(string channel)
+        public virtual ChatMessage GetPartMessage(Channel channel)
         {
             return null;
         }
