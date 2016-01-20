@@ -43,7 +43,7 @@ namespace Waterbot
             TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
-            TwitchChat.Disconnected += TwitchChat_Disconnected;
+            TwitchChat.ConnectionLost += TwitchChat_ConnectionLost;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
             TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
@@ -464,7 +464,7 @@ namespace Waterbot
             }
         }
 
-        private async void TwitchChat_Disconnected(object sender, EventArgs e)
+        private async void TwitchChat_ConnectionLost(object sender, EventArgs e)
         {
             Console.WriteLine("Disconnected from Twitch!");
             var prevChannels = Channels;
