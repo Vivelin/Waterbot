@@ -471,7 +471,7 @@ namespace Waterbot
             Channels.Clear();
 
             var reconnected = await ReconnectAsync(prevChannels);
-            var timeout = TimeSpan.FromSeconds(5);
+            var timeout = TimeSpan.FromSeconds(15);
             while (!reconnected && !_cancelSource.IsCancellationRequested)
             {
                 Console.WriteLine("Retrying in {0}...", timeout.ToText());

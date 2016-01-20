@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using IrcDotNet;
 
@@ -13,11 +14,14 @@ namespace Kappa
     /// </summary>
     public class TwitchChat : IDisposable
     {
+        private static readonly TimeSpan s_timeout = TimeSpan.FromSeconds(30);
         private readonly EndPoint _twitchEP = new DnsEndPoint("irc.twitch.tv", 6667);
         private TaskCompletionSource<bool> _connect;
+        private Timer _connectionTimer;
         private TaskCompletionSource<bool> _disconnect;
         private bool _isConnected = false;
         private bool _isDisposed = false;
+        private TaskCompletionSource<bool> _ping;
         private TaskCompletionSource<bool> _sendMessage;
 
         /// <summary>
@@ -28,7 +32,7 @@ namespace Kappa
         {
             IrcClient = new StandardIrcClient()
             {
-                FloodPreventer = new IrcStandardFloodPreventer(10, 1000)
+                FloodPreventer = new IrcStandardFloodPreventer(5, 1500)
             };
 
             IrcClient.Error += IrcClient_Error;
@@ -37,6 +41,11 @@ namespace Kappa
             IrcClient.Disconnected += IrcClient_Disconnected;
             IrcClient.RawMessageReceived += IrcClient_RawMessageReceived;
             IrcClient.RawMessageSent += IrcClient_RawMessageSent;
+            IrcClient.PingReceived += IrcClient_PingReceived;
+            IrcClient.PongReceived += IrcClient_PongReceived;
+
+            _connectionTimer = new Timer(ConnectionTimerCallback,
+                state: null, dueTime: s_timeout, period: s_timeout);
         }
 
         /// <summary>
@@ -74,8 +83,13 @@ namespace Kappa
             // Note: IrcClient has an IsConnected property, but it is unreliable
             //       and will return true even without an internet connection.
             get { return _isConnected; }
-            set { _isConnected = value; }
+            protected set { _isConnected = value; }
         }
+
+        /// <summary>
+        /// Gets the date and time of the last activity with the servers.
+        /// </summary>
+        public DateTime LastActivity { get; protected set; }
 
         /// <summary>
         /// Gets the name of the user that is connected to Twitch.
@@ -137,6 +151,22 @@ namespace Kappa
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        /// <summary>
+        /// Checks whether the connection to the Twitch chat server is still up.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> object representing the result of the
+        /// asynchronous operation. The task result indicates whether the server
+        /// responded to a PING request.
+        /// </returns>
+        public async Task<bool> IsAlive()
+        {
+            _ping = new TaskCompletionSource<bool>();
+
+            IrcClient.Ping();
+            return await _ping.Task;
         }
 
         /// <summary>
@@ -222,6 +252,7 @@ namespace Kappa
                 if (disposing)
                 {
                     IrcClient?.Dispose();
+                    _connectionTimer?.Dispose();
                 }
 
                 _isDisposed = true;
@@ -276,21 +307,30 @@ namespace Kappa
             ViewerLeft?.Invoke(this, args);
         }
 
+        private async void ConnectionTimerCallback(object state)
+        {
+            if (!IsConnected) return;
+
+            if (!await IsAlive())
+            {
+                IsConnected = false;
+                OnConnectionLost();
+            }
+        }
+
         private void IrcClient_Connected(object sender, EventArgs e)
         {
             Debug.Assert(_connect != null,
                 nameof(_connect) + " cannot be null",
                 nameof(_connect) + " should always be created before calling Connect");
 
-#if DEBUG
-            Trace.WriteLine(string.Format("Connected to {0}", _twitchEP), "Info");
-#endif
+            Debug.WriteLine(string.Format("Connected to {0}", _twitchEP), "Info");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
 
             _connect.SetResult(true);
-            _isConnected = true;
+            IsConnected = true;
         }
 
         private void IrcClient_ConnectFailed(object sender, IrcErrorEventArgs e)
@@ -300,7 +340,7 @@ namespace Kappa
                 nameof(_connect) + " should always be created before calling Connect");
 
             _connect.SetException(e.Error);
-            _isConnected = false;
+            IsConnected = false;
         }
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
@@ -308,20 +348,36 @@ namespace Kappa
             // Use TrySetResult here as opposed to SetResult, as this could
             // cause issues during debugging when we set it to null.
             _disconnect.TrySetResult(true);
-            _isConnected = false;
+            IsConnected = false;
         }
 
         private void IrcClient_Error(object sender, IrcErrorEventArgs e)
         {
+            Debug.WriteLine(e.Error, "Error received");
             if (e.Error is System.Net.Sockets.SocketException)
             {
-                _isConnected = false;
+                IsConnected = false;
                 OnConnectionLost();
             }
         }
 
+        private void IrcClient_PingReceived(object sender, IrcPingOrPongReceivedEventArgs e)
+        {
+            LastActivity = DateTime.Now;
+        }
+
+        private void IrcClient_PongReceived(object sender, IrcPingOrPongReceivedEventArgs e)
+        {
+            Debug.Assert(_ping != null,
+                nameof(_ping) + " cannot be null",
+                nameof(_ping) + " should always be created before calling Ping");
+
+            _ping.SetResult(true);
+        }
+
         private void IrcClient_RawMessageReceived(object sender, IrcRawMessageEventArgs e)
         {
+            LastActivity = DateTime.Now;
             var message = Message.Parse(e.RawContent);
 
             if (message is ChatMessage)
@@ -332,14 +388,13 @@ namespace Kappa
                 OnViewerLeft(message);
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
-#if DEBUG
             else
-                Trace.WriteLine(message.RawMessage, "Unhandled message received");
-#endif
+                Debug.WriteLine(message.RawMessage, "Unhandled message received");
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)
         {
+            LastActivity = DateTime.Now;
             if (_sendMessage != null)
                 _sendMessage.TrySetResult(true);
         }
