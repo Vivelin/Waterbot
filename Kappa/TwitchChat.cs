@@ -400,12 +400,16 @@ namespace Kappa
                         // Anything else is probably a bug.
                         break;
                 }
+
+                if (_connect != null)
+                    _connect.SetException(e.Error);
+                else
+                    throw e.Error;
             }
 
-            if (_connect != null)
-                _connect.SetException(e.Error);
-            else
-                throw e.Error;
+            // Don't throw just any error, because IrcDotNet is kinda shit and
+            // anything could happen here.
+            Debug.WriteLine(e.Error, "Unhandled error occurred in IrcDotNet");
         }
 
         private void IrcClient_PingReceived(object sender, IrcPingOrPongReceivedEventArgs e)
