@@ -467,7 +467,7 @@ namespace Waterbot
         private async void TwitchChat_ConnectionLost(object sender, EventArgs e)
         {
             Console.WriteLine("Disconnected from Twitch!");
-            var prevChannels = Channels;
+            var prevChannels = Channels.ToList(); // Clone
             Channels.Clear();
 
             var reconnected = await ReconnectAsync(prevChannels);

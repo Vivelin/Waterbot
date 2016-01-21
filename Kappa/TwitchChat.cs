@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using IrcDotNet;
@@ -126,6 +127,7 @@ namespace Kappa
             await _connect.Task;
 
             UserName = userName;
+            _connect = null;
         }
 
         /// <summary>
@@ -166,7 +168,10 @@ namespace Kappa
             _ping = new TaskCompletionSource<bool>();
 
             IrcClient.Ping();
-            return await _ping.Task;
+            var success = await _ping.Task;
+
+            _ping = null;
+            return success;
         }
 
         /// <summary>
@@ -186,8 +191,12 @@ namespace Kappa
             await _sendMessage.Task;
 
             _sendMessage = null;
+
+            // We don't really care about the result of the operation right now,
+            // this is just to make sure we've seen the display name of the
+            // channel host.
             var user = new User(channel);
-            await user.Load();
+            var task = user.Load();
         }
 
         /// <summary>
@@ -264,6 +273,12 @@ namespace Kappa
         /// </summary>
         protected virtual void OnConnectionLost()
         {
+            IsConnected = false;
+
+            // If we don't manually disconnect after losing connection, we won't
+            // be able to reconnect because of an IsConnected SocketException...
+            IrcClient.Disconnect();
+
             ConnectionLost?.Invoke(this, EventArgs.Empty);
         }
 
@@ -329,8 +344,8 @@ namespace Kappa
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
 
-            _connect.SetResult(true);
             IsConnected = true;
+            _connect.SetResult(true);
         }
 
         private void IrcClient_ConnectFailed(object sender, IrcErrorEventArgs e)
@@ -339,26 +354,58 @@ namespace Kappa
                 nameof(_connect) + " cannot be null",
                 nameof(_connect) + " should always be created before calling Connect");
 
-            _connect.SetException(e.Error);
             IsConnected = false;
+            _connect.SetException(e.Error);
         }
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
         {
-            // Use TrySetResult here as opposed to SetResult, as this could
-            // cause issues during debugging when we set it to null.
-            _disconnect.TrySetResult(true);
             IsConnected = false;
+
+            if (_disconnect != null)
+                _disconnect.TrySetResult(true);
         }
 
         private void IrcClient_Error(object sender, IrcErrorEventArgs e)
         {
-            Debug.WriteLine(e.Error, "Error received");
-            if (e.Error is System.Net.Sockets.SocketException)
+            if (e.Error is SocketException)
             {
-                IsConnected = false;
-                OnConnectionLost();
+                var ex = e.Error as SocketException;
+                switch (ex.SocketErrorCode)
+                {
+                    case SocketError.NetworkDown:
+                    case SocketError.NetworkReset:
+                    case SocketError.NetworkUnreachable:
+                    case SocketError.ConnectionAborted:
+                    case SocketError.ConnectionRefused:
+                        // If we're connected, these errors indicate a lost
+                        // connection and the client can retry. If we're not
+                        // connected yet, we should throw instead.
+                        if (IsConnected)
+                        {
+                            IsConnected = false;
+                            OnConnectionLost();
+                            return;
+                        }
+                        break;
+
+                    case SocketError.OperationAborted:
+                        // This error usually occurs while disconnected. Why
+                        // doesn't IrcDotNet catch this?
+                        Debug.WriteLine(ex, "Error ignored");
+                        return;
+
+                    case SocketError.IsConnected:
+                    default:
+                        // Anything else is probably a bug.
+                        break;
+                }
             }
+
+            if (_connect != null)
+                _connect.SetException(e.Error);
+            else
+                throw e.Error;
         }
 
         private void IrcClient_PingReceived(object sender, IrcPingOrPongReceivedEventArgs e)
@@ -372,6 +419,7 @@ namespace Kappa
                 nameof(_ping) + " cannot be null",
                 nameof(_ping) + " should always be created before calling Ping");
 
+            LastActivity = DateTime.Now;
             _ping.SetResult(true);
         }
 
