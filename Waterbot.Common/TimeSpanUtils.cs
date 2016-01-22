@@ -29,7 +29,6 @@ namespace Waterbot.Common
                     builder.AppendFormat(" and {0:N0} hours", hours);
                 if (hours == 1)
                     builder.Append(" and an hour");
-                builder.Append(" ago");
             }
             else if (time.TotalHours >= 2)
             {
@@ -41,7 +40,6 @@ namespace Waterbot.Common
                     builder.AppendFormat(" and {0:N0} minutes", minutes);
                 if (minutes == 1)
                     builder.Append(" and one minute");
-                builder.Append(" ago");
             }
             else if (time.TotalMinutes >= 2)
             {
@@ -53,11 +51,15 @@ namespace Waterbot.Common
                     builder.AppendFormat(" and {0:N0} seconds", seconds);
                 if (seconds == 1)
                     builder.Append(" and one second");
-                builder.Append(" ago");
+            }
+            else if (time.TotalSeconds >= 2)
+            {
+                var seconds = Math.Floor(time.TotalSeconds);
+                builder.AppendFormat("about {0:N0} seconds", seconds);
             }
             else
             {
-                builder.Append("just now");
+                builder.AppendFormat("a couple of seconds");
             }
 
             return builder.ToString();

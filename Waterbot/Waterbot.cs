@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kappa;
+using Waterbot.Common;
 
 namespace Waterbot
 {
@@ -42,7 +43,7 @@ namespace Waterbot
             TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
-            TwitchChat.Disconnected += TwitchChat_Disconnected;
+            TwitchChat.ConnectionLost += TwitchChat_ConnectionLost;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
             TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
@@ -155,15 +156,29 @@ namespace Waterbot
         /// <summary>
         /// Joins the specified channel asynchronously.
         /// </summary>
-        /// <param name="channel">The name of the channel to join.</param>
+        /// <param name="channelName">The name of the channel to join.</param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task JoinAsync(string channel)
+        public async Task JoinAsync(string channelName)
+        {
+            var channel = new Channel(channelName);
+            await JoinAsync(channel);
+        }
+
+        /// <summary>
+        /// Joins the specified channel asynchronously.
+        /// </summary>
+        /// <param name="channel">The channel to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(Channel channel)
         {
             await TwitchChat.JoinAsync(channel);
-            OnChannelJoined(new ChannelEventArgs(new Channel(channel)));
+            OnChannelJoined(new ChannelEventArgs(channel));
 
             var message = Behavior.GetJoinMessage(channel);
             await SendMessageAsync(message);
@@ -180,6 +195,25 @@ namespace Waterbot
         /// asynchronous operation.
         /// </returns>
         public async Task JoinAsync(IEnumerable<string> channels)
+        {
+            foreach (var channel in channels)
+            {
+                await JoinAsync(channel);
+
+                // JOINs are rate-limited at 50 per 15 seconds => 3/s
+                await Task.Delay(333);
+            }
+        }
+
+        /// <summary>
+        /// Joins the specified channels asynchronously.
+        /// </summary>
+        /// <param name="channels">A collection of channels to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(IEnumerable<Channel> channels)
         {
             foreach (var channel in channels)
             {
@@ -242,7 +276,7 @@ namespace Waterbot
 
             foreach (var channel in Channels)
             {
-                var message = Behavior.GetPartMessage(channel.ToIrcChannel());
+                var message = Behavior.GetPartMessage(channel);
                 await SendMessageAsync(message);
             }
 
@@ -360,6 +394,40 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Attempts to reconnect to the Twitch chat servers and rejoin the
+        /// specified channels.
+        /// </summary>
+        /// <param name="channels">
+        /// A collection of the channels to rejoin.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> object that represents the result of
+        /// the asynchronous operation, containing a boolean value that
+        /// indicates whether the reconnect attempt was successful. If the bot
+        /// is still connected, the result of the returned task will be
+        /// <c>true</c>.
+        /// </returns>
+        protected async Task<bool> ReconnectAsync(IEnumerable<Channel> channels)
+        {
+            if (!TwitchChat.IsConnected)
+            {
+                try
+                {
+                    await TwitchChat.ConnectAsync(Config.Credentials.UserName,
+                        Config.Credentials.OAuthToken);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    return false;
+                }
+
+                await JoinAsync(channels);
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Performs background operations that do not involve responding to
         /// events.
         /// </summary>
@@ -396,10 +464,25 @@ namespace Waterbot
             }
         }
 
-        private void TwitchChat_Disconnected(object sender, EventArgs e)
+        private async void TwitchChat_ConnectionLost(object sender, EventArgs e)
         {
-            // TODO: Implement automatic reconnecting
             Console.WriteLine("Disconnected from Twitch!");
+            var prevChannels = Channels.ToList(); // Clone
+            Channels.Clear();
+
+            var reconnected = await ReconnectAsync(prevChannels);
+            var timeout = TimeSpan.FromSeconds(15);
+            while (!reconnected && !_cancelSource.IsCancellationRequested)
+            {
+                Console.WriteLine("Retrying in {0}...", timeout.ToText());
+                await Task.Delay(timeout, _cancelSource.Token);
+
+                reconnected = await ReconnectAsync(prevChannels);
+                if (timeout < TimeSpan.FromHours(1))
+                    timeout += timeout;
+            }
+
+            Console.WriteLine("And we're back!");
         }
 
         private async void TwitchChat_MessageReceived(object sender, ChatMessageEventArgs e)

@@ -171,7 +171,7 @@ namespace Kappa
 
         private static Message Create(ParseResults results)
         {
-            Trace.WriteLine(results.Message, "IRC");
+            Debug.WriteLine(results.Message, "IRC");
 
             switch (results.Command)
             {
