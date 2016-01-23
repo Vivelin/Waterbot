@@ -136,7 +136,7 @@ namespace Waterbot
             var interfaceType = typeof(ICommandManufactorum);
             var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass)
+                .Where(type => type.IsClass && !type.IsAbstract)
                 .Where(type => interfaceType.IsAssignableFrom(type));
 
             foreach (var type in factorumTypes)

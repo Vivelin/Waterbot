@@ -13,12 +13,6 @@ namespace Waterbot
         Configuration Configuration { get; set; }
 
         /// <summary>
-        /// Gets a collection of the publicly available commands this factory
-        /// can create.
-        /// </summary>
-        IEnumerable<string> PublicCommands { get; }
-
-        /// <summary>
         /// Indicates whether the command manufactorum is capable of creating
         /// commands for the specified command.
         /// </summary>
@@ -38,5 +32,12 @@ namespace Waterbot
         /// name="command"/> does not represent a valid command.
         /// </returns>
         ICommand Create(string command);
+
+        /// <summary>
+        /// Returns a collection of the names of publicly available commands
+        /// this factory can create.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
+        IEnumerable<string> GetNames();
     }
 }

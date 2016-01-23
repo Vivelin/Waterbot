@@ -37,7 +37,7 @@ namespace Waterbot.Commands
         {
             var response = new StringBuilder();
             foreach (var item in _commands)
-                response.AppendFormat("!{0}; ", item);
+                response.AppendFormat("{0}; ", item);
 
             return Task.FromResult(message.CreateResponse(response.ToString()));
         }
