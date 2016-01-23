@@ -131,6 +131,7 @@ namespace Waterbot
             foreach (var factorum in factories)
             {
                 factorum.Configuration = Config;
+                factorum.Sender = this;
                 if (factorum.CanCreate(command))
                     return factorum;
             }

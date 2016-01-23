@@ -15,6 +15,11 @@ namespace Waterbot.Commands
         public Configuration Configuration { get; set; }
 
         /// <summary>
+        /// Gets or sets the source of the command.
+        /// </summary>
+        public object Sender { get; set; }
+
+        /// <summary>
         /// Gets or sets a collection of the names of publicly available
         /// commands this factory can create.
         /// </summary>
@@ -41,7 +46,8 @@ namespace Waterbot.Commands
         }
 
         /// <summary>
-        /// Creates a new instance of the specified command.
+        /// When overriden in a derived class, creates a new instance of the
+        /// specified command.
         /// </summary>
         /// <param name="command">The name of the command to create.</param>
         /// <returns>

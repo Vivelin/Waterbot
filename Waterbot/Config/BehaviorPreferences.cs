@@ -39,7 +39,8 @@ namespace Waterbot.Config
             };
             CommandAliases = new Dictionary<string, string>
             {
-                { "botinfo", "help" }
+                { "botinfo", "help" },
+                { "shut up", "be quiet" }
             };
             UptimeOfflineResponses = new PhraseSet
             {
@@ -54,7 +55,25 @@ namespace Waterbot.Config
             {
                 "\"{2}\" ¯\\_(ツ)_/¯"
             };
+            AccessDeniedMessages = new PhraseSet
+            {
+                "You can't make me!",
+                "I can't let you do that, {2}"
+            };
+            MuteMessages = new PhraseSet
+            {
+                "Hmph."
+            };
         }
+
+        /// <summary>
+        /// Gets or sets a list of possible responses when a regular user tries
+        /// to use a mod-only command.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public PhraseSet AccessDeniedMessages { get; set; }
 
         /// <summary>
         /// Gets or sets a dictionary that maps command aliases to other
@@ -113,6 +132,14 @@ namespace Waterbot.Config
         /// Gets or sets the time it takes for the bot to get bored.
         /// </summary>
         public TimeSpan IdleTimeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of possible responses before the bot gets muted.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public PhraseSet MuteMessages { get; set; }
 
         /// <summary>
         /// Gets or sets a dictionary containing custom properties.

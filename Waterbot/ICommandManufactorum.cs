@@ -13,6 +13,11 @@ namespace Waterbot
         Configuration Configuration { get; set; }
 
         /// <summary>
+        /// Gets or sets the source of the command.
+        /// </summary>
+        object Sender { get; set; }
+
+        /// <summary>
         /// Indicates whether the command manufactorum is capable of creating
         /// commands for the specified command.
         /// </summary>
