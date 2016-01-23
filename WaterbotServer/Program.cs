@@ -102,6 +102,7 @@ namespace Waterbot.WaterbotServer
                 {
                     waterbot.MessageReceived += Waterbot_MessageReceived;
                     waterbot.MessageSent += Waterbot_MessageSent;
+                    waterbot.MessageMuted += Waterbot_MessageMuted;
                     waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
                     await waterbot.StartAsync();
@@ -122,6 +123,22 @@ namespace Waterbot.WaterbotServer
                 Console.WriteLine(ex);
                 Console.ResetColor();
             }
+        }
+
+        private static void Waterbot_MessageMuted(object sender, ChatMessageEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(e.Message.Channel);
+            Console.Write("] ");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("[MUTED] ");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(e.Message.Contents);
+
+            Console.ResetColor();
         }
 
         private static void Waterbot_MessageReceived(object sender, ChatMessageEventArgs e)

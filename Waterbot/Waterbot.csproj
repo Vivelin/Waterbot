@@ -52,10 +52,15 @@
     <Compile Include="Behaviors\Kusogechan.cs" />
     <Compile Include="Behaviors\NoBehavior.cs" />
     <Compile Include="ChannelEventArgs.cs" />
+    <Compile Include="Commands\CommandManufactorum.cs" />
     <Compile Include="Commands\CommandsCommand.cs" />
     <Compile Include="Commands\CommandsCommandManufactorum.cs" />
+    <Compile Include="Commands\BeQuietCommand.cs" />
+    <Compile Include="Commands\BeQuietCommandManufactorum.cs" />
     <Compile Include="Commands\SimpleCommand.cs" />
     <Compile Include="Commands\SimpleCommandManufactorum.cs" />
+    <Compile Include="Commands\UnmuteCommand.cs" />
+    <Compile Include="Commands\UnmuteCommandManufactorum.cs" />
     <Compile Include="Commands\UptimeCommand.cs" />
     <Compile Include="Commands\UptimeCommandManufactorum.cs" />
     <Compile Include="Configuration.cs" />

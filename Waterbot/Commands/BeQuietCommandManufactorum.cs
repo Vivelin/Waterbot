@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Waterbot.Commands
+﻿namespace Waterbot.Commands
 {
     /// <summary>
-    /// Represents a class that provides <see cref="UptimeCommand"/> objects.
+    /// Represents a class that provides <see cref="BeQuietCommand"/> objects.
     /// </summary>
-    public class UptimeCommandManufactorum : CommandManufactorum
+    public class BeQuietCommandManufactorum : CommandManufactorum
     {
         /// <summary>
         /// Initializes a new instance of the <see
-        /// cref="UptimeCommandManufactorum"/> class.
+        /// cref="BeQuietCommandManufactorum"/>.
         /// </summary>
-        public UptimeCommandManufactorum()
+        public BeQuietCommandManufactorum()
         {
-            PublicCommands = new string[] { "uptime" };
+            PublicCommands = new string[] { "be quiet" };
         }
 
         /// <summary>
@@ -30,8 +24,11 @@ namespace Waterbot.Commands
         /// </returns>
         public override ICommand Create(string command)
         {
-            var responseSet = Configuration.Behavior.UptimeOfflineResponses;
-            return new UptimeCommand(responseSet);
+            return new BeQuietCommand(Sender as Behavior)
+            {
+                FailureResponses = Configuration.Behavior.AccessDeniedMessages,
+                SuccessResponses = Configuration.Behavior.MuteMessages
+            };
         }
     }
 }

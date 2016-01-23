@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Waterbot.Commands
+﻿namespace Waterbot.Commands
 {
     /// <summary>
-    /// Represents a class that provides <see cref="UptimeCommand"/> objects.
+    /// Represents a class that provides <see cref="UnmuteCommand"/> objects.
     /// </summary>
-    public class UptimeCommandManufactorum : CommandManufactorum
+    public class UnmuteCommandManufactorum : CommandManufactorum
     {
         /// <summary>
         /// Initializes a new instance of the <see
-        /// cref="UptimeCommandManufactorum"/> class.
+        /// cref="UnmuteCommandManufactorum"/>.
         /// </summary>
-        public UptimeCommandManufactorum()
+        public UnmuteCommandManufactorum()
         {
-            PublicCommands = new string[] { "uptime" };
+            PublicCommands = new string[] { "unmute" };
         }
 
         /// <summary>
@@ -30,8 +24,10 @@ namespace Waterbot.Commands
         /// </returns>
         public override ICommand Create(string command)
         {
-            var responseSet = Configuration.Behavior.UptimeOfflineResponses;
-            return new UptimeCommand(responseSet);
+            return new UnmuteCommand(Sender as Behavior)
+            {
+                SuccessResponses = Configuration.Behavior.UnmuteMessages
+            };
         }
     }
 }

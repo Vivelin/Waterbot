@@ -31,6 +31,7 @@ namespace Waterbot
         private CancellationTokenSource _cancelSource = new CancellationTokenSource();
         private Configuration _currentConfig = null;
         private bool _isDisposed = false;
+        private bool _isMuted = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Waterbot"/> class using
@@ -60,6 +61,11 @@ namespace Waterbot
         /// Occurs when the current configuration has changed.
         /// </summary>
         public event EventHandler ConfigChanged;
+
+        /// <summary>
+        /// Occurs when a chat message was not sent because the bot was muted.
+        /// </summary>
+        public event EventHandler<ChatMessageEventArgs> MessageMuted;
 
         /// <summary>
         /// Occurs when a chat message has been received.
@@ -136,7 +142,7 @@ namespace Waterbot
             var interfaceType = typeof(ICommandManufactorum);
             var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass)
+                .Where(type => type.IsClass && !type.IsAbstract)
                 .Where(type => interfaceType.IsAssignableFrom(type));
 
             foreach (var type in factorumTypes)
@@ -236,8 +242,19 @@ namespace Waterbot
         {
             if (message != null)
             {
-                await TwitchChat.SendMessage(message);
-                OnMessageSent(new ChatMessageEventArgs(message));
+                var e = new ChatMessageEventArgs(message);
+                if (Behavior.Mute && _isMuted)
+                {
+                    OnMessageMuted(e);
+                }
+                else
+                {
+                    await TwitchChat.SendMessage(message);
+                    OnMessageSent(e);
+                }
+
+                // Delayed mute to allow one final response
+                _isMuted = Behavior.Mute;
             }
         }
 
@@ -353,6 +370,18 @@ namespace Waterbot
             {
                 TwitchApiObject.ClientId = Config.Credentials.ClientId;
             }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="MessageMuted"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="ChatMessageEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnMessageMuted(ChatMessageEventArgs args)
+        {
+            MessageMuted?.Invoke(this, args);
         }
 
         /// <summary>
