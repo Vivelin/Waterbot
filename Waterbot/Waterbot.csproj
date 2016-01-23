@@ -59,6 +59,8 @@
     <Compile Include="Commands\BeQuietCommandManufactorum.cs" />
     <Compile Include="Commands\SimpleCommand.cs" />
     <Compile Include="Commands\SimpleCommandManufactorum.cs" />
+    <Compile Include="Commands\UnmuteCommand.cs" />
+    <Compile Include="Commands\UnmuteCommandManufactorum.cs" />
     <Compile Include="Commands\UptimeCommand.cs" />
     <Compile Include="Commands\UptimeCommandManufactorum.cs" />
     <Compile Include="Configuration.cs" />

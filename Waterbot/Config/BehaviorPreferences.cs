@@ -40,30 +40,21 @@ namespace Waterbot.Config
             CommandAliases = new Dictionary<string, string>
             {
                 { "botinfo", "help" },
-                { "shut up", "be quiet" }
+                { "shut up", "be quiet" },
+                { "be silent", "be quiet" },
+                { "talk to me", "unmute" }
             };
-            UptimeOfflineResponses = new PhraseSet
-            {
-                "{0} is offline."
-            };
-            IdleMessages = new PhraseSet
-            {
-                "Kappa",
-            };
+            UptimeOfflineResponses = new PhraseSet { "{0} is offline." };
+            IdleMessages = new PhraseSet { "Kappa", };
             IdleTimeout = new TimeSpan(1, 0, 0);
-            FailureMessages = new PhraseSet
-            {
-                "\"{2}\" ¯\\_(ツ)_/¯"
-            };
+            FailureMessages = new PhraseSet { "\"{2}\" ¯\\_(ツ)_/¯" };
             AccessDeniedMessages = new PhraseSet
             {
                 "You can't make me!",
                 "I can't let you do that, {2}"
             };
-            MuteMessages = new PhraseSet
-            {
-                "Hmph."
-            };
+            MuteMessages = new PhraseSet { "Hmph." };
+            UnmuteMessages = new PhraseSet { "Hmph." };
         }
 
         /// <summary>
@@ -157,6 +148,14 @@ namespace Waterbot.Config
             "CA2227:CollectionPropertiesShouldBeReadOnly",
             Justification = "Json.NET sucks")]
         public IDictionary<string, PhraseSet> SimpleCommands { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of possible responses when the bot gets unmuted.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
+            "CA2227:CollectionPropertiesShouldBeReadOnly",
+            Justification = "Json.NET sucks")]
+        public PhraseSet UnmuteMessages { get; set; }
 
         /// <summary>
         /// Gets or sets a list of possible responses when the uptime command is

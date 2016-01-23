@@ -9,33 +9,25 @@ using Kappa;
 namespace Waterbot.Commands
 {
     /// <summary>
-    /// Represents a mod-only command that mutes the bot.
+    /// Represents a mod-only command that unmutes the bot.
     /// </summary>
-    public class BeQuietCommand : ICommand
+    public class UnmuteCommand : ICommand
     {
         private Behavior _sender;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BeQuietCommand"/> class
+        /// Initializes a new instance of the <see cref="UnmuteCommand"/> class
         /// for the specified behavior.
         /// </summary>
         /// <param name="sender">
         /// The <see cref="Behavior"/> instance to mute.
         /// </param>
-        public BeQuietCommand(Behavior sender)
+        public UnmuteCommand(Behavior sender)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
 
             _sender = sender;
         }
-
-        /// <summary>
-        /// Gets or sets the responses to use when a regular user tries to use
-        /// the command.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage",
-            "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public PhraseSet FailureResponses { get; set; }
 
         /// <summary>
         /// Gets or sets the responses to use when a mod tries to use the
@@ -56,24 +48,19 @@ namespace Waterbot.Commands
         /// </returns>
         public Task<ChatMessage> GetResponse(ChatMessage message)
         {
-            string response;
-
             if (message.IsBroadcaster || message.IsMod)
             {
-                _sender.Mute = true;
+                _sender.Mute = false;
                 Trace.WriteLine(
-                    string.Format("{0} enabled Mute in channel {1}",
+                    string.Format("{0} disabled Mute in channel {1}",
                         message.User, message.Channel),
                     "Info"); // TODO: Event log?
 
-                response = SuccessResponses.Sample();
-            }
-            else
-            {
-                response = FailureResponses.Sample();
+                var response = SuccessResponses.Sample();
+                return Task.FromResult(message.CreateResponse(response));
             }
 
-            return Task.FromResult(message.CreateResponse(response));
+            return Task.FromResult<ChatMessage>(null);
         }
     }
 }
