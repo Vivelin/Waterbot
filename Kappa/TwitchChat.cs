@@ -33,7 +33,7 @@ namespace Kappa
         {
             IrcClient = new StandardIrcClient()
             {
-                FloodPreventer = new IrcStandardFloodPreventer(5, 1500)
+                FloodPreventer = new IrcStandardFloodPreventer(10, 3000)
             };
 
             IrcClient.Error += IrcClient_Error;
@@ -340,7 +340,7 @@ namespace Kappa
                 nameof(_connect) + " should always be created before calling Connect");
 
             Debug.WriteLine(string.Format("Connected to {0}", _twitchEP), "Info");
-            IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
+            // IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
 
