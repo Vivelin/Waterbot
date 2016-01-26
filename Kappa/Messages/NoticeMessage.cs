@@ -45,6 +45,7 @@ namespace Kappa
                     default: // TODO: Once we know a lot more message types, switch default back to false
                         return true;
 
+                    case NoticeTypes.TimeoutSuccess:
                     case NoticeTypes.HostOn:
                         return false;
                 }

@@ -36,6 +36,12 @@ namespace Waterbot
         public Configuration Config { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether messages from the behavior
+        /// should be muted.
+        /// </summary>
+        public bool Mute { get; set; }
+
+        /// <summary>
         /// Gets the name of the user the bot responds to.
         /// </summary>
         public string UserName
@@ -83,7 +89,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public virtual ChatMessage GetJoinMessage(string channel)
+        public virtual ChatMessage GetJoinMessage(Channel channel)
         {
             return null;
         }
@@ -97,7 +103,7 @@ namespace Waterbot
         /// A <see cref="ChatMessage"/> object that represents the message to
         /// respond with, or <c>null</c>.
         /// </returns>
-        public virtual ChatMessage GetPartMessage(string channel)
+        public virtual ChatMessage GetPartMessage(Channel channel)
         {
             return null;
         }

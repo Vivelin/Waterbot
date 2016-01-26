@@ -82,37 +82,63 @@ namespace Waterbot.WaterbotServer
 
         private static async Task MainAsync()
         {
-            Console.Title = "Waterbot server";
-
-            // Prepare a task which completes when Ctrl+C is pressed
-            quitTask = new TaskCompletionSource<bool>();
-            Console.CancelKeyPress += (sender, e) =>
+            try
             {
-                e.Cancel = true;
-                quitTask.SetResult(true);
-            };
+                Console.Title = "Waterbot server";
 
-            var config = LoadConfig();
-            if (config == null)
-                return;
+                // Prepare a task which completes when Ctrl+C is pressed
+                quitTask = new TaskCompletionSource<bool>();
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    e.Cancel = true;
+                    quitTask.SetResult(true);
+                };
 
-            using (var waterbot = new Waterbot(config))
-            {
-                waterbot.MessageReceived += Waterbot_MessageReceived;
-                waterbot.MessageSent += Waterbot_MessageSent;
-                waterbot.NoticeReceived += Waterbot_NoticeReceived;
+                var config = LoadConfig();
+                if (config == null)
+                    return;
 
-                await waterbot.StartAsync();
-                Console.WriteLine("Press Ctrl+C to stop Waterbot");
+                using (var waterbot = new Waterbot(config))
+                {
+                    waterbot.MessageReceived += Waterbot_MessageReceived;
+                    waterbot.MessageSent += Waterbot_MessageSent;
+                    waterbot.MessageMuted += Waterbot_MessageMuted;
+                    waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
-                await waterbot.JoinAsync(Channels);
+                    await waterbot.StartAsync();
+                    Console.WriteLine("Press Ctrl+C to stop Waterbot");
 
-                // Wait until Ctrl+C is pressed, then exit gracefully
-                await quitTask.Task;
-                await waterbot.StopAsync();
+                    await waterbot.JoinAsync(Channels);
+
+                    // Wait until Ctrl+C is pressed, then exit gracefully
+                    await quitTask.Task;
+                    await waterbot.StopAsync();
+                }
+
+                config.Save();
             }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex);
+                Console.ResetColor();
+            }
+        }
 
-            config.Save();
+        private static void Waterbot_MessageMuted(object sender, ChatMessageEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("[");
+            Console.Write(e.Message.Channel);
+            Console.Write("] ");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("[MUTED] ");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(e.Message.Contents);
+
+            Console.ResetColor();
         }
 
         private static void Waterbot_MessageReceived(object sender, ChatMessageEventArgs e)

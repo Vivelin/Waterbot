@@ -34,7 +34,7 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="channel">The channel that was joined.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        public override ChatMessage GetJoinMessage(string channel)
+        public override ChatMessage GetJoinMessage(Channel channel)
         {
             return null;
         }
@@ -44,7 +44,7 @@ namespace Waterbot.Behaviors
         /// </summary>
         /// <param name="channel">The channel that was left.</param>
         /// <returns>Always returns <c>null</c>.</returns>
-        public override ChatMessage GetPartMessage(string channel)
+        public override ChatMessage GetPartMessage(Channel channel)
         {
             return null;
         }

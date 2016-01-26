@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kappa;
+using Waterbot.Common;
 
 namespace Waterbot
 {
@@ -30,6 +31,7 @@ namespace Waterbot
         private CancellationTokenSource _cancelSource = new CancellationTokenSource();
         private Configuration _currentConfig = null;
         private bool _isDisposed = false;
+        private bool _isMuted = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Waterbot"/> class using
@@ -42,7 +44,7 @@ namespace Waterbot
             TwitchApiObject.ClientId = config.Credentials.ClientId;
 
             TwitchChat = new TwitchChat();
-            TwitchChat.Disconnected += TwitchChat_Disconnected;
+            TwitchChat.ConnectionLost += TwitchChat_ConnectionLost;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
             TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
@@ -59,6 +61,11 @@ namespace Waterbot
         /// Occurs when the current configuration has changed.
         /// </summary>
         public event EventHandler ConfigChanged;
+
+        /// <summary>
+        /// Occurs when a chat message was not sent because the bot was muted.
+        /// </summary>
+        public event EventHandler<ChatMessageEventArgs> MessageMuted;
 
         /// <summary>
         /// Occurs when a chat message has been received.
@@ -124,6 +131,27 @@ namespace Waterbot
         protected TwitchChat TwitchChat { get; }
 
         /// <summary>
+        /// Returns an enumerable collection of command factories.
+        /// </summary>
+        /// <returns>
+        /// An enumerable collection of objects that implement <see
+        /// cref="ICommandManufactorum"/>.
+        /// </returns>
+        public static IEnumerable<ICommandManufactorum> EnumerateCommandFactories()
+        {
+            var interfaceType = typeof(ICommandManufactorum);
+            var factorumTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass && !type.IsAbstract)
+                .Where(type => interfaceType.IsAssignableFrom(type));
+
+            foreach (var type in factorumTypes)
+            {
+                yield return Activator.CreateInstance(type) as ICommandManufactorum;
+            }
+        }
+
+        /// <summary>
         /// Releases all resources used by the <see cref="Waterbot"/> object.
         /// </summary>
         public void Dispose()
@@ -134,15 +162,29 @@ namespace Waterbot
         /// <summary>
         /// Joins the specified channel asynchronously.
         /// </summary>
-        /// <param name="channel">The name of the channel to join.</param>
+        /// <param name="channelName">The name of the channel to join.</param>
         /// <returns>
         /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
-        public async Task JoinAsync(string channel)
+        public async Task JoinAsync(string channelName)
+        {
+            var channel = new Channel(channelName);
+            await JoinAsync(channel);
+        }
+
+        /// <summary>
+        /// Joins the specified channel asynchronously.
+        /// </summary>
+        /// <param name="channel">The channel to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(Channel channel)
         {
             await TwitchChat.JoinAsync(channel);
-            OnChannelJoined(new ChannelEventArgs(new Channel(channel)));
+            OnChannelJoined(new ChannelEventArgs(channel));
 
             var message = Behavior.GetJoinMessage(channel);
             await SendMessageAsync(message);
@@ -170,6 +212,25 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Joins the specified channels asynchronously.
+        /// </summary>
+        /// <param name="channels">A collection of channels to join.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public async Task JoinAsync(IEnumerable<Channel> channels)
+        {
+            foreach (var channel in channels)
+            {
+                await JoinAsync(channel);
+
+                // JOINs are rate-limited at 50 per 15 seconds => 3/s
+                await Task.Delay(333);
+            }
+        }
+
+        /// <summary>
         /// Sends a chat message.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -181,8 +242,19 @@ namespace Waterbot
         {
             if (message != null)
             {
-                await TwitchChat.SendMessage(message);
-                OnMessageSent(new ChatMessageEventArgs(message));
+                var e = new ChatMessageEventArgs(message);
+                if (Behavior.Mute && _isMuted)
+                {
+                    OnMessageMuted(e);
+                }
+                else
+                {
+                    await TwitchChat.SendMessage(message);
+                    OnMessageSent(e);
+                }
+
+                // Delayed mute to allow one final response
+                _isMuted = Behavior.Mute;
             }
         }
 
@@ -221,7 +293,7 @@ namespace Waterbot
 
             foreach (var channel in Channels)
             {
-                var message = Behavior.GetPartMessage(channel.ToIrcChannel());
+                var message = Behavior.GetPartMessage(channel);
                 await SendMessageAsync(message);
             }
 
@@ -301,6 +373,18 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Raises the <see cref="MessageMuted"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="ChatMessageEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnMessageMuted(ChatMessageEventArgs args)
+        {
+            MessageMuted?.Invoke(this, args);
+        }
+
+        /// <summary>
         /// Raises the <see cref="MessageReceived"/> event.
         /// </summary>
         /// <param name="args">
@@ -336,6 +420,40 @@ namespace Waterbot
         protected virtual void OnNoticeReceived(MessageEventArgs args)
         {
             NoticeReceived?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Attempts to reconnect to the Twitch chat servers and rejoin the
+        /// specified channels.
+        /// </summary>
+        /// <param name="channels">
+        /// A collection of the channels to rejoin.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> object that represents the result of
+        /// the asynchronous operation, containing a boolean value that
+        /// indicates whether the reconnect attempt was successful. If the bot
+        /// is still connected, the result of the returned task will be
+        /// <c>true</c>.
+        /// </returns>
+        protected async Task<bool> ReconnectAsync(IEnumerable<Channel> channels)
+        {
+            if (!TwitchChat.IsConnected)
+            {
+                try
+                {
+                    await TwitchChat.ConnectAsync(Config.Credentials.UserName,
+                        Config.Credentials.OAuthToken);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    return false;
+                }
+
+                await JoinAsync(channels);
+            }
+            return true;
         }
 
         /// <summary>
@@ -375,10 +493,25 @@ namespace Waterbot
             }
         }
 
-        private void TwitchChat_Disconnected(object sender, EventArgs e)
+        private async void TwitchChat_ConnectionLost(object sender, EventArgs e)
         {
-            // TODO: Implement automatic reconnecting
             Console.WriteLine("Disconnected from Twitch!");
+            var prevChannels = Channels.ToList(); // Clone
+            Channels.Clear();
+
+            var reconnected = await ReconnectAsync(prevChannels);
+            var timeout = TimeSpan.FromSeconds(15);
+            while (!reconnected && !_cancelSource.IsCancellationRequested)
+            {
+                Console.WriteLine("Retrying in {0}...", timeout.ToText());
+                await Task.Delay(timeout, _cancelSource.Token);
+
+                reconnected = await ReconnectAsync(prevChannels);
+                if (timeout < TimeSpan.FromHours(1))
+                    timeout += timeout;
+            }
+
+            Console.WriteLine("And we're back!");
         }
 
         private async void TwitchChat_MessageReceived(object sender, ChatMessageEventArgs e)
