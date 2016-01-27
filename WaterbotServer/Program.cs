@@ -33,7 +33,7 @@ namespace Waterbot.WaterbotServer
                     config = new Configuration();
                     config.Save();
 
-                    Console.WriteLine("A default configuration has been written to {0}. Please check the file, modify it where necessary, then start Waterbot again.", Configuration.DefaultFileName);
+                    Console.WriteLine(Strings.DefaultConfigCreated, Configuration.DefaultFileName);
                     return null;
                 }
             }
@@ -42,7 +42,7 @@ namespace Waterbot.WaterbotServer
                 config = Configuration.FromFile(ConfigFile);
                 if (config == null)
                 {
-                    Console.WriteLine("Could not load {0}. Please check whether the file is accessible and valid and try again.", ConfigFile);
+                    Console.WriteLine(Strings.ConfigLoadFailed, ConfigFile);
                     return null;
                 }
             }
@@ -55,9 +55,9 @@ namespace Waterbot.WaterbotServer
             var showHelp = false;
 
             var options = new Mono.Options.OptionSet();
-            options.Add("config=", "The file name of the configuration to load.",
+            options.Add("config=", Strings.Opt_Config,
                 value => ConfigFile = value);
-            options.Add("h|help|?", "Prints this message and exits.",
+            options.Add("h|help|?", Strings.Opt_Help,
                 value => showHelp = (value != null));
 
             Channels = options.Parse(args);
@@ -68,9 +68,9 @@ namespace Waterbot.WaterbotServer
 
             if (showHelp)
             {
-                Console.WriteLine("Runs the Waterbot server.");
+                Console.WriteLine(Strings.Help_Description);
                 Console.WriteLine();
-                Console.WriteLine("WaterbotServer [--config=VALUE] [channel]");
+                Console.WriteLine(Strings.Help_Usage);
                 Console.WriteLine();
                 options.WriteOptionDescriptions(Console.Out);
             }
@@ -84,7 +84,7 @@ namespace Waterbot.WaterbotServer
         {
             try
             {
-                Console.Title = "Waterbot server";
+                Console.Title = Strings.Con_Title;
 
                 // Prepare a task which completes when Ctrl+C is pressed
                 quitTask = new TaskCompletionSource<bool>();
@@ -106,7 +106,7 @@ namespace Waterbot.WaterbotServer
                     waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
                     await waterbot.StartAsync();
-                    Console.WriteLine("Press Ctrl+C to stop Waterbot");
+                    Console.WriteLine(Strings.Con_ExitMessage);
 
                     await waterbot.JoinAsync(Channels);
 

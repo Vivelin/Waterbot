@@ -316,7 +316,7 @@ namespace Waterbot
                     return new Behaviors.NoBehavior(Config);
 
                 default:
-                    Trace.WriteLine($"No behavior specified for {user}, falling back to default behavior", "WARNING");
+                    Trace.WriteLine(string.Format(Strings.BehaviorFallback, user), "WARNING");
                     return new DefaultBehavior(Config);
             }
         }
@@ -495,7 +495,7 @@ namespace Waterbot
 
         private async void TwitchChat_ConnectionLost(object sender, EventArgs e)
         {
-            Console.WriteLine("Disconnected from Twitch!");
+            Console.WriteLine(Strings.ConnectionLost);
             var prevChannels = Channels.ToList(); // Clone
             Channels.Clear();
 
@@ -503,7 +503,7 @@ namespace Waterbot
             var timeout = TimeSpan.FromSeconds(15);
             while (!reconnected && !_cancelSource.IsCancellationRequested)
             {
-                Console.WriteLine("Retrying in {0}...", timeout.ToText());
+                Console.WriteLine(Strings.ConnectionRetrying, timeout.ToText());
                 await Task.Delay(timeout, _cancelSource.Token);
 
                 reconnected = await ReconnectAsync(prevChannels);
@@ -511,7 +511,7 @@ namespace Waterbot
                     timeout += timeout;
             }
 
-            Console.WriteLine("And we're back!");
+            Console.WriteLine(Strings.ConnectionRestored);
         }
 
         private async void TwitchChat_MessageReceived(object sender, ChatMessageEventArgs e)
@@ -520,7 +520,7 @@ namespace Waterbot
 
             if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
-                Trace.WriteLine("I think I'm talking to myself.");
+                Trace.WriteLine(Strings.TalkingToMyself);
                 return;
             }
 

@@ -141,7 +141,7 @@ namespace Kappa
         {
             _disconnect = new TaskCompletionSource<bool>();
 
-            IrcClient.Quit("Cave Johnson, we're done here.");
+            IrcClient.Quit(Strings.QuitMessage);
             await _disconnect.Task;
 
             _disconnect = null;
@@ -409,7 +409,7 @@ namespace Kappa
 
             // Don't throw just any error, because IrcDotNet is kinda shit and
             // anything could happen here.
-            Debug.WriteLine(e.Error, "Unhandled error occurred in IrcDotNet");
+            Debug.WriteLine(e.Error, Strings.IrcDotNetError);
         }
 
         private void IrcClient_PingReceived(object sender, IrcPingOrPongReceivedEventArgs e)
@@ -441,7 +441,7 @@ namespace Kappa
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
             else
-                Debug.WriteLine(message.RawMessage, "Unhandled message received");
+                Debug.WriteLine(message.RawMessage, Strings.UnhandledMessageReceived);
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)

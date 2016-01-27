@@ -27,21 +27,21 @@ namespace Waterbot.Common
             {
                 var elapsed = DateTime.Now - date;
                 if (elapsed.TotalSeconds >= 2)
-                    text.AppendFormat("{0} ago", elapsed.ToText());
+                    text.AppendFormat(Strings.XAgo, elapsed.ToText());
                 else
-                    text.Append("just now");
+                    text.Append(Strings.JustNow);
             }
             else if (DateTime.Now > date)
             {
                 var interval = date - DateTime.Now;
                 if (interval.TotalSeconds >= 2)
-                    text.AppendFormat("in {0}", interval.ToText());
+                    text.AppendFormat(Strings.InX, interval.ToText());
                 else
-                    text.Append("about now");
+                    text.Append(Strings.AboutNow);
             }
             else
             {
-                text.Append("now");
+                text.Append(Strings.Now);
             }
 
             return text.ToString();

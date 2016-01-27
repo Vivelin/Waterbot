@@ -52,8 +52,7 @@ namespace Waterbot.Commands
             {
                 _sender.Mute = false;
                 Trace.WriteLine(
-                    string.Format("{0} disabled Mute in channel {1}",
-                        message.User, message.Channel),
+                    string.Format(Strings.MuteDisabled, message.User, message.Channel),
                     "Info"); // TODO: Event log?
 
                 var response = SuccessResponses.Sample();

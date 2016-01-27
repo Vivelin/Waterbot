@@ -56,8 +56,7 @@ namespace Kappa
         protected internal ChatMessage(ParseResults results) : base(results)
         {
             if (Parameters.Count < 2)
-                throw new ArgumentException(
-                    "A chat message should always contain at least two parameters.",
+                throw new ArgumentException(Strings.Arg_ChatMessageParamCount,
                     nameof(results));
 
             Channel = new Channel(Parameters[0]);

@@ -22,44 +22,44 @@ namespace Waterbot.Common
             if (time.TotalDays >= 2)
             {
                 var days = Math.Floor(time.TotalDays);
-                builder.AppendFormat("about {0:N0} days", days);
+                builder.AppendFormat(Strings.AboutXDays, days);
 
                 var hours = time.TotalHours - days * 24;
                 if (hours > 1)
-                    builder.AppendFormat(" and {0:N0} hours", hours);
+                    builder.AppendFormat(Strings.AndXHours, hours);
                 if (hours == 1)
-                    builder.Append(" and an hour");
+                    builder.Append(Strings.AndOneHour);
             }
             else if (time.TotalHours >= 2)
             {
                 var hours = Math.Floor(time.TotalHours);
-                builder.AppendFormat("about {0:N0} hours", hours);
+                builder.AppendFormat(Strings.AboutXHours, hours);
 
                 var minutes = time.TotalMinutes - hours * 60;
                 if (minutes > 1)
-                    builder.AppendFormat(" and {0:N0} minutes", minutes);
+                    builder.AppendFormat(Strings.AndXMinutes, minutes);
                 if (minutes == 1)
-                    builder.Append(" and one minute");
+                    builder.Append(Strings.AndOneMinute);
             }
             else if (time.TotalMinutes >= 2)
             {
                 var minutes = Math.Floor(time.TotalMinutes);
-                builder.AppendFormat("about {0:N0} minutes", minutes);
+                builder.AppendFormat(Strings.AboutXMinutes, minutes);
 
                 var seconds = time.TotalSeconds - minutes * 60;
                 if (seconds > 1)
-                    builder.AppendFormat(" and {0:N0} seconds", seconds);
+                    builder.AppendFormat(Strings.AndXSeconds, seconds);
                 if (seconds == 1)
-                    builder.Append(" and one second");
+                    builder.Append(Strings.AndOneSecond);
             }
             else if (time.TotalSeconds >= 2)
             {
                 var seconds = Math.Floor(time.TotalSeconds);
-                builder.AppendFormat("about {0:N0} seconds", seconds);
+                builder.AppendFormat(Strings.AboutXSeconds, seconds);
             }
             else
             {
-                builder.AppendFormat("a couple of seconds");
+                builder.AppendFormat(Strings.FewSecs);
             }
 
             return builder.ToString();

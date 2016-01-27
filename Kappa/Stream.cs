@@ -63,7 +63,7 @@ namespace Kappa
         public override string ToString()
         {
             if (Game != null)
-                return string.Format("{0} playing {1}", Channel.Name, Game);
+                return string.Format(Strings.Stream_String, Channel.Name, Game);
             return Channel.Name ?? base.ToString();
         }
     }

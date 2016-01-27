@@ -52,8 +52,7 @@ namespace Waterbot.Commands
                 var startTime = stream.Started;
                 var elapsedTime = startTime.ToRelativeTimeString();
 
-                var response = string.Format("{0} started streaming {1}.",
-                    stream.Channel, elapsedTime);
+                var response = string.Format(Strings.UptimeResponse, stream.Channel, elapsedTime);
                 return message.CreateResponse(response);
             }
         }

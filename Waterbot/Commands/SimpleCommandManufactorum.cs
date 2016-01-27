@@ -46,8 +46,7 @@ namespace Waterbot.Commands
         {
             if (Configuration == null)
             {
-                throw new InvalidOperationException(
-                    "A configuration is required to call this method.");
+                throw new InvalidOperationException(Strings.ConfigRequired);
             }
         }
     }
