@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Waterbot.Common;
 
 namespace Kappa
 {
@@ -63,7 +64,7 @@ namespace Kappa
         public override string ToString()
         {
             if (Game != null)
-                return string.Format(Strings.Stream_String, Channel.Name, Game);
+                return Strings.Stream_String.With(Channel.Name, Game);
             return Channel.Name ?? base.ToString();
         }
     }

@@ -43,5 +43,38 @@ namespace Waterbot.Common
             char[] keep = value.Where(c => !Char.IsPunctuation(c)).ToArray();
             return new string(keep);
         }
+
+        /// <summary>
+        /// Replaces one or more format items in the string with the string
+        /// representation of a specified object.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="arg0">The object to format.</param>
+        /// <returns>
+        /// A copy of the string in which any format items are replaced by the
+        /// string representation of <paramref name="arg0"/>.
+        /// </returns>
+        public static string With(this string format, object arg0)
+        {
+            return string.Format(format, arg0);
+        }
+
+        /// <summary>
+        /// Replaces the format item in the string with the string
+        /// representation of a corresponding object in a specified array.
+        /// </summary>
+        /// <param name="format">A composite format string.</param>
+        /// <param name="args">
+        /// An object array that contains zero or more objects to format.
+        /// </param>
+        /// <returns>
+        /// A copy of the string in which the format items have been replaced by
+        /// the string representation of the corresponding objects in <paramref
+        /// name="args"/>.
+        /// </returns>
+        public static string With(this string format, params object[] args)
+        {
+            return string.Format(format, args);
+        }
     }
 }

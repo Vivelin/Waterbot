@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kappa;
+using Waterbot.Common;
 
 namespace Waterbot.Commands
 {
@@ -62,7 +63,7 @@ namespace Waterbot.Commands
             {
                 _sender.Mute = true;
                 Trace.WriteLine(
-                    string.Format(Strings.MuteEnabled, message.User, message.Channel),
+                    Strings.MuteEnabled.With(message.User, message.Channel),
                     "Info"); // TODO: Event log?
 
                 response = SuccessResponses.Sample();

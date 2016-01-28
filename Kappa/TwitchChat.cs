@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using IrcDotNet;
+using Waterbot.Common;
 
 namespace Kappa
 {
@@ -232,8 +233,8 @@ namespace Kappa
             {
                 var raw = message.ConstructCommand(contents =>
                 {
-                    return string.Format(contents,
-                        message.Channel,
+                    return contents.With(
+                        message.Channel, 
                         UserName,
                         message.Target?.Name ?? message.Channel.Name);
                 });
@@ -339,7 +340,7 @@ namespace Kappa
                 nameof(_connect) + " cannot be null",
                 nameof(_connect) + " should always be created before calling Connect");
 
-            Debug.WriteLine(string.Format("Connected to {0}", _twitchEP), "Info");
+            Debug.WriteLine($"Connected to {_twitchEP}", "Info");
             // IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");

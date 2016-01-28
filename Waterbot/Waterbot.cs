@@ -316,7 +316,7 @@ namespace Waterbot
                     return new Behaviors.NoBehavior(Config);
 
                 default:
-                    Trace.WriteLine(string.Format(Strings.BehaviorFallback, user), "WARNING");
+                    Trace.WriteLine(Strings.BehaviorFallback.With(user), "WARNING");
                     return new DefaultBehavior(Config);
             }
         }

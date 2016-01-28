@@ -52,7 +52,7 @@ namespace Waterbot.Commands
                 var startTime = stream.Started;
                 var elapsedTime = startTime.ToRelativeTimeString();
 
-                var response = string.Format(Strings.UptimeResponse, stream.Channel, elapsedTime);
+                var response = Strings.UptimeResponse.With(stream.Channel, elapsedTime);
                 return message.CreateResponse(response);
             }
         }
