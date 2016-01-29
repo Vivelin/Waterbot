@@ -316,7 +316,7 @@ namespace Waterbot
                     return new Behaviors.NoBehavior(Config);
 
                 default:
-                    Trace.WriteLine(Strings.BehaviorFallback.With(user), "WARNING");
+                    Log.Add(Strings.BehaviorFallback.With(user));
                     return new DefaultBehavior(Config);
             }
         }
@@ -447,7 +447,7 @@ namespace Waterbot
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine(ex);
+                    Log.AddException(ex);
                     return false;
                 }
 
@@ -520,7 +520,7 @@ namespace Waterbot
 
             if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
-                Trace.WriteLine(Strings.TalkingToMyself);
+                Log.Add(Strings.TalkingToMyself);
                 return;
             }
 
