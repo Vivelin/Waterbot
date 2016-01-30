@@ -172,7 +172,7 @@ namespace Kappa
 
         private static Message Create(ParseResults results)
         {
-            Log.Add(Events.RawMessageReceived.With(results.Message));
+            // Log.Add(Events.RawMessageReceived.With(results.Message), null, null, 0);
 
             switch (results.Command)
             {

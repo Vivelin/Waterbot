@@ -442,7 +442,7 @@ namespace Kappa
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
             else
-                Log.Add(Events.UnhandledMessageReceived.With(message.RawMessage));
+                Log.Add(Events.RawMessageReceived.With(message.RawMessage), null, null, 0);
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)

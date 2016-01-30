@@ -20,12 +20,6 @@ namespace Kappa
             = new LogEvent<string>(Strings.RawMessageReceived);
 
         /// <summary>
-        /// Indicates an IRC message was received but not handled.
-        /// </summary>
-        public static readonly LogEvent<string> UnhandledMessageReceived
-            = new LogEvent<string>(Strings.UnhandledMessageReceived);
-
-        /// <summary>
         /// Indicates a connection was established.
         /// </summary>
         public static readonly LogEvent<System.Net.EndPoint> Connected

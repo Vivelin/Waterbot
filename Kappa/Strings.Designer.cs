@@ -124,7 +124,7 @@ namespace Kappa {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unhandled message was received: {0}.
+        ///   Looks up a localized string similar to {0}.
         /// </summary>
         internal static string UnhandledMessageReceived {
             get {
