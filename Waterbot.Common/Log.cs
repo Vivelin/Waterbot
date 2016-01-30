@@ -37,6 +37,34 @@ namespace Waterbot.Common
         }
 
         /// <summary>
+        /// Adds the specified event to the log.
+        /// </summary>
+        /// <param name="logEvent">An instance of the event to log.</param>
+        /// <param name="caller">
+        /// The name of the caller to the method. This value is optional and can
+        /// be provided automatically when invoked from compilers that support
+        /// CallerMemberName.
+        /// </param>
+        /// <param name="file">
+        /// The full path of the source file that contains the caller. This
+        /// value is optional and can be provided automatically when invoked
+        /// from compilers that support CallerFilePath.
+        /// </param>
+        /// <param name="lineNo">
+        /// The line number in the source file at which the method is called.
+        /// This value is optional and can be provided automatically when
+        /// invoked from compilers that support CallerLineNumber.
+        /// </param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed")]
+        public static void Add(ILogEvent logEvent,
+            [CallerMemberName] string caller = null,
+            [CallerFilePath] string file = null,
+            [CallerLineNumber] int lineNo = 0)
+        {
+            Add(logEvent.Message, caller, file, lineNo);
+        }
+
+        /// <summary>
         /// Adds the specified message to the log.
         /// </summary>
         /// <param name="message">The message to log.</param>

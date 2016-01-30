@@ -520,7 +520,7 @@ namespace Waterbot
 
             if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
-                Log.Add(Strings.TalkingToMyself);
+                Log.Add(Events.TalkingToMyself);
                 return;
             }
 

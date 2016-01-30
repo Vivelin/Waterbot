@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Waterbot.Common;
 
 namespace Kappa
 {
@@ -171,7 +172,7 @@ namespace Kappa
 
         private static Message Create(ParseResults results)
         {
-            Debug.WriteLine(results.Message, "IRC");
+            Log.Add(Events.RawMessageReceived.With(results.Message));
 
             switch (results.Command)
             {

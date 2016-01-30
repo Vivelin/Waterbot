@@ -62,7 +62,7 @@ namespace Waterbot.Commands
             if (message.IsBroadcaster || message.IsMod)
             {
                 _sender.Mute = true;
-                Log.Add(Strings.MuteEnabled.With(message.User, message.Channel));
+                Log.Add(Events.MuteEnabled.With(message));
 
                 response = SuccessResponses.Sample();
             }

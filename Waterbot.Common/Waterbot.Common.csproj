@@ -46,7 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionUtils.cs" />
+    <Compile Include="ILogEvent.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="LogEvent.cs" />
     <Compile Include="RNG.cs" />
     <Compile Include="DateTimeUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
