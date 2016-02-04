@@ -131,8 +131,9 @@ namespace Kappa
         {
             get
             {
+                var mod = Tags?.Get(MessageTags.Mod);
                 var userType = Tags?.Get(MessageTags.UserType);
-                return userType == "mod" || userType == "global_mod";
+                return mod == "1" || userType == "mod" || userType == "global_mod";
             }
         }
 
