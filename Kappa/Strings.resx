@@ -120,16 +120,25 @@
   <data name="Arg_ChatMessageParamCount" xml:space="preserve">
     <value>A chat message should always contain at least two parameters.</value>
   </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Connected to {0}</value>
+  </data>
+  <data name="InvalidOperation_Null" xml:space="preserve">
+    <value>{0} cannot be null.</value>
+  </data>
   <data name="IrcDotNetError" xml:space="preserve">
     <value>An unhandled error occurred in IrcDotNet</value>
   </data>
   <data name="QuitMessage" xml:space="preserve">
     <value>Cave Johnson, we're done here.</value>
   </data>
+  <data name="RawMessageReceived" xml:space="preserve">
+    <value>{0}</value>
+  </data>
   <data name="Stream_String" xml:space="preserve">
     <value>{0} playing {1}</value>
   </data>
   <data name="UnhandledMessageReceived" xml:space="preserve">
-    <value>An unhandled message was received</value>
+    <value>{0}</value>
   </data>
 </root>

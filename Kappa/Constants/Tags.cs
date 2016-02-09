@@ -27,5 +27,10 @@ namespace Kappa
         /// Indicates the type of user (mod).
         /// </summary>
         public const string UserType = "user-type";
+
+        /// <summary>
+        /// Indicates the user is a mod.
+        /// </summary>
+        public const string Mod = "mod";
     }
 }

@@ -54,7 +54,9 @@
     <Compile Include="ApiObject.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Constants\NoticeTypes.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="MessageLogEvent.cs" />
     <Compile Include="Messages\NoticeMessage.cs" />
     <Compile Include="Messages\PartMessage.cs" />
     <Compile Include="Messages\JoinMessage.cs" />

@@ -340,7 +340,7 @@ namespace Kappa
                 nameof(_connect) + " cannot be null",
                 nameof(_connect) + " should always be created before calling Connect");
 
-            Debug.WriteLine($"Connected to {_twitchEP}", "Info");
+            Log.Add(Events.Connected.With(_twitchEP));
             // IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
@@ -442,7 +442,7 @@ namespace Kappa
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
             else
-                Debug.WriteLine(message.RawMessage, Strings.UnhandledMessageReceived);
+                Log.Add(Events.RawMessageReceived.With(message.RawMessage), null, null, 0);
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)

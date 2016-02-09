@@ -34,6 +34,29 @@ namespace Waterbot.Common
         }
 
         /// <summary>
+        /// Concatenates all the elements of a string array, using the specified
+        /// separator between each element and ignoring elements that are empty
+        /// or <c>null</c>.
+        /// </summary>
+        /// <param name="separator">The string to use as a separator.</param>
+        /// <param name="args">
+        /// An array that contains the elements to concatenate.
+        /// </param>
+        /// <returns>
+        /// A string that consists of the elements in <paramref name="args"/>
+        /// delimited by the separator string. If <paramref name="args"/> is an
+        /// empty array, the method returns an empty string.
+        /// </returns>
+        public static string Join(string separator, params string[] args)
+        {
+            if (args == null || args.Length == 0) return string.Empty;
+            if (args.Length == 1) return args[0];
+
+            var values = args.Where(x => !string.IsNullOrEmpty(x));
+            return string.Join(separator, values);
+        }
+
+        /// <summary>
         /// Normalizes a string for comparison by stripping punctuation.
         /// </summary>
         /// <param name="value">The string to normalize.</param>

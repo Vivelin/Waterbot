@@ -70,6 +70,24 @@ namespace Kappa {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connected to {0}.
+        /// </summary>
+        internal static string Connected {
+            get {
+                return ResourceManager.GetString("Connected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} cannot be null..
+        /// </summary>
+        internal static string InvalidOperation_Null {
+            get {
+                return ResourceManager.GetString("InvalidOperation_Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unhandled error occurred in IrcDotNet.
         /// </summary>
         internal static string IrcDotNetError {
@@ -88,6 +106,15 @@ namespace Kappa {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string RawMessageReceived {
+            get {
+                return ResourceManager.GetString("RawMessageReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} playing {1}.
         /// </summary>
         internal static string Stream_String {
@@ -97,7 +124,7 @@ namespace Kappa {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unhandled message was received.
+        ///   Looks up a localized string similar to {0}.
         /// </summary>
         internal static string UnhandledMessageReceived {
             get {

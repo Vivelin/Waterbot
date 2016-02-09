@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Kappa;
 
@@ -7,10 +9,24 @@ namespace Waterbot.WaterbotServer
 {
     internal class Program
     {
-        private static TaskCompletionSource<bool> quitTask;
+        private static readonly string s_appData
+            = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+        private static TaskCompletionSource<bool> s_quit;
 
         private static List<string> Channels { get; set; }
         private static string ConfigFile { get; set; }
+
+        private static void InitializeTracing()
+        {
+            var logDir = Path.Combine(s_appData, "waterbot", "log");
+            if (!Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
+
+            var file = Path.Combine(logDir, $"{DateTime.Now:yyyyMMdd}.svclog");
+            var xwtl = new XmlWriterTraceListener(file);
+            Trace.Listeners.Add(xwtl);
+        }
 
         /// <summary>
         /// Loads the configuration file, creating a new one if the default
@@ -53,7 +69,6 @@ namespace Waterbot.WaterbotServer
         private static void Main(string[] args)
         {
             var showHelp = false;
-
             var options = new Mono.Options.OptionSet();
             options.Add("config=", Strings.Opt_Config,
                 value => ConfigFile = value);
@@ -65,6 +80,8 @@ namespace Waterbot.WaterbotServer
             {
                 Channels = new List<string>();
             }
+
+            InitializeTracing();
 
             if (showHelp)
             {
@@ -87,11 +104,11 @@ namespace Waterbot.WaterbotServer
                 Console.Title = Strings.Con_Title;
 
                 // Prepare a task which completes when Ctrl+C is pressed
-                quitTask = new TaskCompletionSource<bool>();
+                s_quit = new TaskCompletionSource<bool>();
                 Console.CancelKeyPress += (sender, e) =>
                 {
                     e.Cancel = true;
-                    quitTask.SetResult(true);
+                    s_quit.SetResult(true);
                 };
 
                 var config = LoadConfig();
@@ -111,11 +128,18 @@ namespace Waterbot.WaterbotServer
                     await waterbot.JoinAsync(Channels);
 
                     // Wait until Ctrl+C is pressed, then exit gracefully
-                    await quitTask.Task;
+                    while (!s_quit.Task.IsCompleted)
+                    {
+                        Trace.Flush();
+                        await Task.Delay(1000);
+                    }
+
+                    await s_quit.Task;                    
                     await waterbot.StopAsync();
                 }
 
                 config.Save();
+                Trace.Close();
             }
             catch (Exception ex)
             {
@@ -159,14 +183,17 @@ namespace Waterbot.WaterbotServer
             {
                 if (e.Message.IsBroadcaster)
                     Console.ForegroundColor = ConsoleColor.Red;
+                else if (e.Message.IsStaff)
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
                 else if (e.Message.IsAdmin)
                     Console.ForegroundColor = ConsoleColor.Yellow;
                 else if (e.Message.IsMod)
                     Console.ForegroundColor = ConsoleColor.Green;
-                else if (e.Message.IsSub)
-                    Console.ForegroundColor = ConsoleColor.Blue;
                 else
                     Console.ResetColor();
+
+                if (e.Message.IsSub)
+                    Console.Write("*");
 
                 Console.Write(e.Message.User);
                 Console.Write(": ");
