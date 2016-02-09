@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kappa;
-using Waterbot.Common;
+using horsedrowner.Common;
 
 namespace Waterbot.Commands
 {

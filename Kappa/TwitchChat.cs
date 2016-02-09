@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using IrcDotNet;
-using Waterbot.Common;
+using horsedrowner.Common;
 
 namespace Kappa
 {

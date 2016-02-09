@@ -79,13 +79,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common\Common.csproj">
+      <Project>{e2301a6f-ea4f-4bbe-ad66-a7db20b8c5be}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kappa\Kappa.csproj">
       <Project>{8344e526-df88-47b4-9da6-9865d29d3a60}</Project>
       <Name>Kappa</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Waterbot.Common\Waterbot.Common.csproj">
-      <Project>{e2301a6f-ea4f-4bbe-ad66-a7db20b8c5be}</Project>
-      <Name>Waterbot.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterbotServer", "WaterbotS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kappa", "Kappa\Kappa.csproj", "{8344E526-DF88-47B4-9DA6-9865D29D3A60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waterbot.Common", "Waterbot.Common\Waterbot.Common.csproj", "{E2301A6F-EA4F-4BBE-AD66-A7DB20B8C5BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common\Common.csproj", "{E2301A6F-EA4F-4BBE-AD66-A7DB20B8C5BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

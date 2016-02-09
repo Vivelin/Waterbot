@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kappa;
-using Waterbot.Common;
+using horsedrowner.Common;
 
 namespace Waterbot
 {
