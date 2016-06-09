@@ -5,29 +5,29 @@ using Kappa;
 namespace Waterbot
 {
     /// <summary>
-    /// Represents the types of events that can be logged.
+    /// Provides the types of events that can be logged.
     /// </summary>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// Log.Add(Events.MuteEnabled.With(message));
-    /// </code>
+    /// ]]></code>
     /// </example>
     internal static class Events
     {
         /// <summary>
-        /// Indicates a user disabled Mute in a certain channel.
+        /// A user disabled Mute in a certain channel.
         /// </summary>
         public static readonly MessageLogEvent MuteDisabled
             = new MessageLogEvent(Strings.MuteDisabled);
 
         /// <summary>
-        /// Indicates a user enabled Mute in a certain channel.
+        /// A user enabled Mute in a certain channel.
         /// </summary>
         public static readonly MessageLogEvent MuteEnabled
             = new MessageLogEvent(Strings.MuteEnabled);
 
         /// <summary>
-        /// Indicates the bot caught itself trying to reply to its own messages.
+        /// The bot caught itself trying to reply to its own messages.
         /// </summary>
         public static readonly LogEvent TalkingToMyself
             = new LogEvent(Strings.TalkingToMyself);

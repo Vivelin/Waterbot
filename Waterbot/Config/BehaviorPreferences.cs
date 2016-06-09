@@ -30,7 +30,7 @@ namespace Waterbot.Config
             Greetings = new PhraseSet
             {
                 "Hey", "Hi", "Yo", "Hej", "'sup", "Hello", "Hallo", "Hoi", "Hiya",
-                "What's up", "Whatsup", "HeyGuys"
+                "What's up", "Whatsup", "HeyGuys", "VoHiYo"
             };
             SimpleCommands = new Dictionary<string, PhraseSet>
             {

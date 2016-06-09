@@ -14,7 +14,7 @@ namespace Waterbot
     /// Represents the Waterbot server.
     /// </summary>
     /// <example>
-    /// <code>
+    /// <code><![CDATA[
     /// using (var waterbot = new Waterbot.Server())
     /// {
     ///     waterbot.UserName = "horsedrowner";
@@ -23,7 +23,7 @@ namespace Waterbot
     ///     // ...
     ///     await waterbot.StopAsync();
     /// }
-    /// </code>
+    /// ]]></code>
     /// </example>
     public class Waterbot : IDisposable
     {
