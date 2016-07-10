@@ -70,6 +70,15 @@ namespace Kappa {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A whisper should always contain at least two parameters..
+        /// </summary>
+        internal static string Arg_WhisperParamCount {
+            get {
+                return ResourceManager.GetString("Arg_WhisperParamCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connected to {0}.
         /// </summary>
         internal static string Connected {

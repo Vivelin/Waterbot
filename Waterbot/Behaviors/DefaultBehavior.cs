@@ -117,6 +117,20 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Returns a whisper that greets the user in response to a whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to respond to.</param>
+        /// <returns>
+        /// A <see cref="Whisper"/> object that represents the whisper to
+        /// respond with.
+        /// </returns>
+        public virtual Whisper Greet(Whisper whisper)
+        {
+            var greeting = Config.Behavior.Greetings.Sample();
+            return whisper.CreateResponse(greeting);
+        }
+
+        /// <summary>
         /// Returns a command factory that is capable of creating the specified
         /// command.
         /// </summary>
@@ -159,6 +173,23 @@ namespace Waterbot
             }
 
             return Task.FromResult<ChatMessage>(null);
+        }
+
+        /// <summary>
+        /// Determines the bot's default response to the specified whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to respond to.</param>
+        /// <returns>
+        /// A <see cref="Whisper"/> object that represents the whisper to 
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected override Task<Whisper> GetResponse(Whisper whisper)
+        {
+            if (whisper.MentionsAny(Config.Behavior.Greetings))
+                return Task.FromResult(Greet(whisper));
+
+            var response = Config.Behavior.DefaultResponses.Sample();
+            return Task.FromResult(whisper.CreateResponse(response));
         }
 
         /// <summary>

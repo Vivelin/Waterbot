@@ -26,5 +26,10 @@ namespace Kappa
         /// Indicates a chat message.
         /// </summary>
         public const string PRIVMSG = "PRIVMSG";
+
+        /// <summary>
+        /// Indicates a whisper message.
+        /// </summary>
+        public const string WHISPER = "WHISPER";
     }
 }

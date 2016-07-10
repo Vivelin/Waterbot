@@ -44,7 +44,7 @@ namespace Kappa
         /// <summary>
         /// Gets the IRC command name of the message.
         /// </summary>
-        public string Command { get; protected set; }
+        public virtual string Command { get; }
 
         /// <summary>
         /// Gets a list that contains the command's parameters.
@@ -172,8 +172,6 @@ namespace Kappa
 
         private static Message Create(ParseResults results)
         {
-            // Log.Add(Events.RawMessageReceived.With(results.Message), null, null, 0);
-
             switch (results.Command)
             {
                 case Commands.PRIVMSG:
@@ -187,6 +185,9 @@ namespace Kappa
 
                 case Commands.NOTICE:
                     return new NoticeMessage(results);
+
+                case Commands.WHISPER:
+                    return new Whisper(results);
 
                 default:
                     return new Message(results);

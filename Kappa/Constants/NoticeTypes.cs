@@ -33,6 +33,11 @@ namespace Kappa
         public const string HostOn = "host_on";
 
         /// <summary>
+        /// Indicates the channel exited host mode.
+        /// </summary>
+        public const string HostOff = "host_off";
+
+        /// <summary>
         /// Indicates a timeout command was successful.
         /// </summary>
         public const string TimeoutSuccess = "timeout_success";

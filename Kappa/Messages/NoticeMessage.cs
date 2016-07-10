@@ -46,7 +46,8 @@ namespace Kappa
                         return true;
 
                     case NoticeTypes.TimeoutSuccess:
-                    case NoticeTypes.HostOn:
+                    //case NoticeTypes.HostOn:
+                    //case NoticeTypes.HostOff:
                         return false;
                 }
             }

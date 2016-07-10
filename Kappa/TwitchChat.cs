@@ -6,8 +6,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using IrcDotNet;
 using horsedrowner.Common;
+using IrcDotNet;
 
 namespace Kappa
 {
@@ -18,6 +18,7 @@ namespace Kappa
     {
         private static readonly TimeSpan s_timeout = TimeSpan.FromSeconds(30);
         private readonly EndPoint _twitchEP = new DnsEndPoint("irc.twitch.tv", 6667);
+        // private readonly EndPoint _whisperEP = new DnsEndPoint("199.9.253.119", 6667);
         private TaskCompletionSource<bool> _connect;
         private Timer _connectionTimer;
         private TaskCompletionSource<bool> _disconnect;
@@ -77,6 +78,11 @@ namespace Kappa
         public event EventHandler<MessageEventArgs> ViewerLeft;
 
         /// <summary>
+        /// Occurs when a whisper has been received.
+        /// </summary>
+        public event EventHandler<WhisperEventArgs> WhisperReceived;
+
+        /// <summary>
         /// Gets a value indicating whether a connection with Twitch chat
         /// servers is currently established.
         /// </summary>
@@ -104,6 +110,13 @@ namespace Kappa
         /// </summary>
         [CLSCompliant(false)]
         protected StandardIrcClient IrcClient { get; }
+
+        /// <summary>
+        /// Gets the IRC client used to communicate with the Twitch group chat
+        /// server.
+        /// </summary>
+        [CLSCompliant(false)]
+        protected StandardIrcClient WhisperClient { get; }
 
         /// <summary>
         /// Connects to the Twitch chat server.
@@ -224,9 +237,13 @@ namespace Kappa
         }
 
         /// <summary>
-        /// Sends a chat message to the specified channel.
+        /// Sends a chat message.
         /// </summary>
         /// <param name="message">The chat message to send.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
         public virtual async Task SendMessage(ChatMessage message)
         {
             if (message != null)
@@ -234,7 +251,7 @@ namespace Kappa
                 var raw = message.ConstructCommand(contents =>
                 {
                     return contents.With(
-                        message.Channel, 
+                        message.Channel,
                         UserName,
                         message.Target?.Name ?? message.Channel.Name);
                 });
@@ -245,6 +262,35 @@ namespace Kappa
 
                 _sendMessage = null;
                 message.User = new User(UserName);
+            }
+        }
+
+        /// <summary>
+        /// Sends a whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to send.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual async Task SendWhisper(Whisper whisper)
+        {
+            if (whisper != null)
+            {
+                var raw = whisper.ConstructCommand(contents =>
+                {
+                    return contents.With(
+                        whisper.Target.Name,
+                        UserName
+                    );
+                });
+                _sendMessage = new TaskCompletionSource<bool>();
+
+                IrcClient.SendRawMessage(raw);
+                await _sendMessage.Task;
+
+                _sendMessage = null;
+                whisper.User = new User(UserName);
             }
         }
 
@@ -327,6 +373,16 @@ namespace Kappa
         {
             var args = new MessageEventArgs(message);
             ViewerLeft?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="WhisperReceived"/> event.
+        /// </summary>
+        /// <param name="whisper">The whisper that was received.</param>
+        protected virtual void OnWhisperReceived(Whisper whisper)
+        {
+            var args = new WhisperEventArgs(whisper);
+            WhisperReceived?.Invoke(this, args);
         }
 
         private async void ConnectionTimerCallback(object state)
@@ -438,6 +494,7 @@ namespace Kappa
         {
             LastActivity = DateTime.Now;
             var message = Message.Parse(e.RawContent);
+            Events.RawMessageReceived.Log(message.RawMessage);
 
             if (message is ChatMessage)
                 OnMessageReceived((ChatMessage)message);
@@ -447,8 +504,8 @@ namespace Kappa
                 OnViewerLeft(message);
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
-            else
-                Events.RawMessageReceived.Log(message.RawMessage);
+            else if (message is Whisper)
+                OnWhisperReceived((Whisper)message);
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)

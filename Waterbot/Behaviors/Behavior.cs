@@ -61,7 +61,7 @@ namespace Waterbot
         /// </summary>
         /// <param name="message">The notice that was received.</param>
         /// <returns>
-        /// A <see cref="Task"/> objec representing the result of the
+        /// A <see cref="Task"/> object representing the result of the
         /// asynchronous operation.
         /// </returns>
         public virtual Task<ChatMessage> GetFailureResponse(NoticeMessage message)
@@ -109,7 +109,7 @@ namespace Waterbot
         }
 
         /// <summary>
-        /// Determine's the bot's response to the specified message.
+        /// Determines the bot's response to the specified message.
         /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <returns>
@@ -120,7 +120,8 @@ namespace Waterbot
         /// This method first attempts to process any commands contained within
         /// the message by calling <see cref="HandleCommand"/>. If processing
         /// the command did not result in a response, the method <see
-        /// cref="GetResponse"/> will be used to determine the bot's response.
+        /// cref="GetResponse(ChatMessage)"/> will be used to determine the 
+        /// bot's response.
         /// </remarks>
         public virtual async Task<ChatMessage> ProcessMessage(ChatMessage message)
         {
@@ -136,6 +137,19 @@ namespace Waterbot
             }
 
             return await GetResponse(message);
+        }
+
+        /// <summary>
+        /// Determines the bot's response to the specified whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to respond to.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual async Task<Whisper> ProcessWhisper(Whisper whisper)
+        {
+            return await GetResponse(whisper);
         }
 
         /// <summary>
@@ -175,6 +189,17 @@ namespace Waterbot
         /// respond with, or <c>null</c>.
         /// </returns>
         protected abstract Task<ChatMessage> GetResponse(ChatMessage message);
+
+        /// <summary>
+        /// When overriden in a derived class, determines the bot's response to
+        /// the specified whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to respond to.</param>
+        /// <returns>
+        /// A <see cref="Whisper"/> object that represents the whisper to 
+        /// respond with, or <c>null</c>.
+        /// </returns>
+        protected abstract Task<Whisper> GetResponse(Whisper whisper);
 
         /// <summary>
         /// When overridden in a derived class, determines the bot's response to

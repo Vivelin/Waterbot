@@ -181,13 +181,16 @@ namespace Kappa
         public User Target { get; }
 
         /// <summary>
+        /// Gets the IRC command name of the message.
+        /// </summary>
+        public override string Command => Commands.PRIVMSG;
+
+        /// <summary>
         /// Gets the raw IRC command for sending this message.
         /// </summary>
         /// <returns>A string containing the IRC message to send.</returns>
         public override string ConstructCommand()
         {
-            Command = Commands.PRIVMSG;
-
             Parameters.Clear();
             Parameters.Add(Channel.ToIrcChannel());
             Parameters.Add(Contents);
@@ -207,17 +210,10 @@ namespace Kappa
         /// before it is sent.
         /// </param>
         /// <returns>A string containing the IRC message to send.</returns>
-        public string ConstructCommand(Func<string, string> formatter)
+        public virtual string ConstructCommand(Func<string, string> formatter)
         {
-            Command = Commands.PRIVMSG;
-
             Contents = formatter(Contents);
-
-            Parameters.Clear();
-            Parameters.Add(Channel.ToIrcChannel());
-            Parameters.Add(Contents);
-
-            return base.ConstructCommand();
+            return ConstructCommand();
         }
 
         /// <summary>

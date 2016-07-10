@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Kappa;
 using horsedrowner.Common;
+using Kappa;
 
 namespace Waterbot
 {
@@ -14,7 +13,8 @@ namespace Waterbot
     /// Represents the Waterbot server.
     /// </summary>
     /// <example>
-    /// <code><![CDATA[
+    /// <code>
+    /// <![CDATA[
     /// using (var waterbot = new Waterbot.Server())
     /// {
     ///     waterbot.UserName = "horsedrowner";
@@ -23,7 +23,8 @@ namespace Waterbot
     ///     // ...
     ///     await waterbot.StopAsync();
     /// }
-    /// ]]></code>
+    /// ]]>
+    /// </code>
     /// </example>
     public class Waterbot : IDisposable
     {
@@ -46,6 +47,7 @@ namespace Waterbot
             TwitchChat = new TwitchChat();
             TwitchChat.ConnectionLost += TwitchChat_ConnectionLost;
             TwitchChat.MessageReceived += TwitchChat_MessageReceived;
+            TwitchChat.WhisperReceived += TwitchChat_WhisperReceived;
             TwitchChat.NoticeReceived += TwitchChat_NoticeReceived;
 
             Channels = new List<Channel>();
@@ -82,6 +84,16 @@ namespace Waterbot
         /// </summary>
         [Obsolete("This is a temporary event and will be replaced by more specific events in the future.")]
         public event EventHandler<MessageEventArgs> NoticeReceived;
+
+        /// <summary>
+        /// Occurs when a whisper has been received.
+        /// </summary>
+        public event EventHandler<WhisperEventArgs> WhisperReceived;
+
+        /// <summary>
+        /// Occurs when a whisper was sent by the bot.
+        /// </summary>
+        public event EventHandler<WhisperEventArgs> WhisperSent;
 
         /// <summary>
         /// Gets or sets <see cref="Waterbot"/>'s behavior.
@@ -134,8 +146,8 @@ namespace Waterbot
         /// Returns an enumerable collection of command factories.
         /// </summary>
         /// <returns>
-        /// An enumerable collection of objects that implement <see
-        /// cref="ICommandManufactorum"/>.
+        /// An enumerable collection of objects that implement
+        /// <see cref="ICommandManufactorum"/>.
         /// </returns>
         public static IEnumerable<ICommandManufactorum> EnumerateCommandFactories()
         {
@@ -255,6 +267,23 @@ namespace Waterbot
 
                 // Delayed mute to allow one final response
                 _isMuted = Behavior.Mute;
+            }
+        }
+
+        /// <summary>
+        /// Sends a whisper.
+        /// </summary>
+        /// <param name="whisper">The whisper to send.</param>
+        /// <returns>
+        /// A <see cref="Task"/> object representing the result of the
+        /// asynchronous operation.
+        /// </returns>
+        public virtual async Task SendWhisperAsync(Whisper whisper)
+        {
+            if (whisper != null)
+            {
+                await TwitchChat.SendWhisper(whisper);
+                OnWhisperSent(new WhisperEventArgs(whisper));
             }
         }
 
@@ -423,6 +452,30 @@ namespace Waterbot
         }
 
         /// <summary>
+        /// Raises the <see cref="WhisperReceived"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="WhisperEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnWhisperReceived(WhisperEventArgs args)
+        {
+            WhisperReceived?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Raises the <see cref="WhisperSent"/> event.
+        /// </summary>
+        /// <param name="args">
+        /// A <see cref="WhisperEventArgs"/> object providing data for the
+        /// event.
+        /// </param>
+        protected virtual void OnWhisperSent(WhisperEventArgs args)
+        {
+            WhisperSent?.Invoke(this, args);
+        }
+
+        /// <summary>
         /// Attempts to reconnect to the Twitch chat servers and rejoin the
         /// specified channels.
         /// </summary>
@@ -534,6 +587,14 @@ namespace Waterbot
 
             var response = await Behavior.GetFailureResponse(e.Message as NoticeMessage);
             await SendMessageAsync(response);
+        }
+
+        private async void TwitchChat_WhisperReceived(object sender, WhisperEventArgs e)
+        {
+            OnWhisperReceived(e);
+
+            var response = await Behavior.ProcessWhisper(e.Whisper);
+            await SendWhisperAsync(response);
         }
     }
 }

@@ -74,6 +74,16 @@ namespace Waterbot.Behaviors
         /// <summary>
         /// Returns <c>null</c>.
         /// </summary>
+        /// <param name="whisper">The whisper to respond to.</param>
+        /// <returns>Always returns <c>null</c>.</returns>
+        protected override Task<Whisper> GetResponse(Whisper whisper)
+        {
+            return Task.FromResult<Whisper>(null);
+        }
+
+        /// <summary>
+        /// Returns <c>null</c>.
+        /// </summary>
         /// <param name="message">The message to respond to.</param>
         /// <param name="command">The command to handle.</param>
         /// <returns>Always returns <c>null</c>.</returns>

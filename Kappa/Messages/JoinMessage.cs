@@ -38,16 +38,18 @@ namespace Kappa
         public Channel Channel { get; }
 
         /// <summary>
+        /// Gets the IRC command name of the message.
+        /// </summary>
+        public override string Command => Commands.JOIN;
+
+        /// <summary>
         /// Gets the raw IRC command for sending this message.
         /// </summary>
         /// <returns>A string containing the IRC message to send.</returns>
         public override string ConstructCommand()
         {
-            Command = Commands.JOIN;
-
             Parameters.Clear();
             Parameters.Add(Channel.ToIrcChannel());
-
             return base.ConstructCommand();
         }
     }

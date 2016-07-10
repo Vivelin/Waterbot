@@ -120,6 +120,9 @@
   <data name="Arg_ChatMessageParamCount" xml:space="preserve">
     <value>A chat message should always contain at least two parameters.</value>
   </data>
+  <data name="Arg_WhisperParamCount" xml:space="preserve">
+    <value>A whisper should always contain at least two parameters.</value>
+  </data>
   <data name="Connected" xml:space="preserve">
     <value>Connected to {0}</value>
   </data>

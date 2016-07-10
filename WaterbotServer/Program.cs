@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using Kappa;
 
@@ -107,6 +106,8 @@ namespace Waterbot.WaterbotServer
                     waterbot.MessageReceived += Waterbot_MessageReceived;
                     waterbot.MessageSent += Waterbot_MessageSent;
                     waterbot.MessageMuted += Waterbot_MessageMuted;
+                    waterbot.WhisperReceived += Waterbot_WhisperReceived;
+                    waterbot.WhisperSent += Waterbot_WhisperSent;
                     waterbot.NoticeReceived += Waterbot_NoticeReceived;
 
                     await waterbot.StartAsync();
@@ -121,7 +122,7 @@ namespace Waterbot.WaterbotServer
                         await Task.Delay(1000);
                     }
 
-                    await s_quit.Task;                    
+                    await s_quit.Task;
                     await waterbot.StopAsync();
                 }
 
@@ -161,7 +162,7 @@ namespace Waterbot.WaterbotServer
 
             if (e.Message.IsTwitchNotify)
             {
-                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
                 Console.WriteLine(e.Message.Contents);
 
                 Console.ResetColor();
@@ -211,6 +212,32 @@ namespace Waterbot.WaterbotServer
             Console.Write("] ");
 
             Console.Write(message.Text);
+
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        private static void Waterbot_WhisperReceived(object sender, WhisperEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.Write("From ");
+            Console.Write(e.Whisper.Target.Name);
+            Console.Write(": ");
+
+            Console.Write(e.Whisper.Contents);
+
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+
+        private static void Waterbot_WhisperSent(object sender, WhisperEventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.Write("To ");
+            Console.Write(e.Whisper.User.Name);
+            Console.Write(": ");
+
+            Console.Write(e.Whisper.Contents);
 
             Console.ResetColor();
             Console.WriteLine();

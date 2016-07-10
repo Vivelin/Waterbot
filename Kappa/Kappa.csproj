@@ -59,6 +59,7 @@
     <Compile Include="Messages\NoticeMessage.cs" />
     <Compile Include="Messages\PartMessage.cs" />
     <Compile Include="Messages\JoinMessage.cs" />
+    <Compile Include="Messages\WhisperMessage.cs" />
     <Compile Include="Stream.cs" />
     <Compile Include="ChatMessageEventArgs.cs" />
     <Compile Include="Constants\Commands.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="TwitchChat.cs" />
     <Compile Include="IrcUtil.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="WhisperEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
