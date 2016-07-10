@@ -56,7 +56,6 @@
     <Compile Include="Constants\NoticeTypes.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="MessageEventArgs.cs" />
-    <Compile Include="MessageLogEvent.cs" />
     <Compile Include="Messages\NoticeMessage.cs" />
     <Compile Include="Messages\PartMessage.cs" />
     <Compile Include="Messages\JoinMessage.cs" />
@@ -93,6 +92,7 @@
       <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\Common\Logging\Logging.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

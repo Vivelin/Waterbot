@@ -17,17 +17,6 @@ namespace Waterbot.WaterbotServer
         private static List<string> Channels { get; set; }
         private static string ConfigFile { get; set; }
 
-        private static void InitializeTracing()
-        {
-            var logDir = Path.Combine(s_appData, "waterbot", "log");
-            if (!Directory.Exists(logDir))
-                Directory.CreateDirectory(logDir);
-
-            var file = Path.Combine(logDir, $"{DateTime.Now:yyyyMMdd}.svclog");
-            var xwtl = new XmlWriterTraceListener(file);
-            Trace.Listeners.Add(xwtl);
-        }
-
         /// <summary>
         /// Loads the configuration file, creating a new one if the default
         /// configuration is not present and no custom configuration file has
@@ -80,8 +69,6 @@ namespace Waterbot.WaterbotServer
             {
                 Channels = new List<string>();
             }
-
-            InitializeTracing();
 
             if (showHelp)
             {

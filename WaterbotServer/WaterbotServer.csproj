@@ -54,6 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="Trace.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kappa\Kappa.csproj">

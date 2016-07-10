@@ -66,9 +66,11 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Config\BehaviorPreferences.cs" />
     <Compile Include="Config\Credentials.cs" />
+    <Compile Include="Errors.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandManufactorum.cs" />
+    <Compile Include="MessageLogEvent.cs" />
     <Compile Include="PhraseSet.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -97,6 +99,7 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <Import Project="..\Common\Logging\Logging.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

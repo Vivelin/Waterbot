@@ -79,20 +79,20 @@ namespace Kappa {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} cannot be null..
-        /// </summary>
-        internal static string InvalidOperation_Null {
-            get {
-                return ResourceManager.GetString("InvalidOperation_Null", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An unhandled error occurred in IrcDotNet.
         /// </summary>
         internal static string IrcDotNetError {
             get {
                 return ResourceManager.GetString("IrcDotNetError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string NoticeReceived {
+            get {
+                return ResourceManager.GetString("NoticeReceived", resourceCulture);
             }
         }
         

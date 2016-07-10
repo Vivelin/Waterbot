@@ -299,6 +299,12 @@ namespace Kappa
         /// <param name="message">The message that was received.</param>
         protected virtual void OnNoticeReceived(Message message)
         {
+            var notice = message as NoticeMessage;
+            if (notice != null && notice.IsError)
+            {
+                Events.NoticeReceived.Log(notice.RawMessage);
+            }
+
             var args = new MessageEventArgs(message);
             NoticeReceived?.Invoke(this, args);
         }
@@ -340,7 +346,7 @@ namespace Kappa
                 nameof(_connect) + " cannot be null",
                 nameof(_connect) + " should always be created before calling Connect");
 
-            Log.Add(Events.Connected.With(_twitchEP));
+            Events.Connected.Log(_twitchEP);
             // IrcClient.SendRawMessage("CAP REQ :twitch.tv/membership");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/tags");
             IrcClient.SendRawMessage("CAP REQ :twitch.tv/commands");
@@ -442,7 +448,7 @@ namespace Kappa
             else if (message is NoticeMessage)
                 OnNoticeReceived(message);
             else
-                Log.Add(Events.RawMessageReceived.With(message.RawMessage), null, null, 0);
+                Events.RawMessageReceived.Log(message.RawMessage);
         }
 
         private void IrcClient_RawMessageSent(object sender, IrcRawMessageEventArgs e)

@@ -123,11 +123,11 @@
   <data name="Connected" xml:space="preserve">
     <value>Connected to {0}</value>
   </data>
-  <data name="InvalidOperation_Null" xml:space="preserve">
-    <value>{0} cannot be null.</value>
-  </data>
   <data name="IrcDotNetError" xml:space="preserve">
     <value>An unhandled error occurred in IrcDotNet</value>
+  </data>
+  <data name="NoticeReceived" xml:space="preserve">
+    <value>{0}</value>
   </data>
   <data name="QuitMessage" xml:space="preserve">
     <value>Cave Johnson, we're done here.</value>

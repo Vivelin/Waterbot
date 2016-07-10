@@ -132,6 +132,9 @@
   <data name="ConnectionRetrying" xml:space="preserve">
     <value>Retrying in {0}...</value>
   </data>
+  <data name="InvalidOperation_Null" xml:space="preserve">
+    <value>{0} cannot be null.</value>
+  </data>
   <data name="MuteDisabled" xml:space="preserve">
     <value>{0} disabled Mute in channel {1}</value>
   </data>

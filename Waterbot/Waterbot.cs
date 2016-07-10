@@ -316,7 +316,7 @@ namespace Waterbot
                     return new Behaviors.NoBehavior(Config);
 
                 default:
-                    Log.Add(Strings.BehaviorFallback.With(user));
+                    Events.BehaviorFallback.Log(user);
                     return new DefaultBehavior(Config);
             }
         }
@@ -447,7 +447,7 @@ namespace Waterbot
                 }
                 catch (Exception ex)
                 {
-                    Log.AddException(ex);
+                    Errors.Reconnect.Log(ex);
                     return false;
                 }
 
@@ -520,7 +520,7 @@ namespace Waterbot
 
             if (string.Compare(e.Message.User.Name, Config.Credentials.UserName, true) == 0)
             {
-                Log.Add(Events.TalkingToMyself);
+                Events.TalkingToMyself.Log();
                 return;
             }
 

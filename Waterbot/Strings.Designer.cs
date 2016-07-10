@@ -106,6 +106,15 @@ namespace Waterbot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} cannot be null..
+        /// </summary>
+        internal static string InvalidOperation_Null {
+            get {
+                return ResourceManager.GetString("InvalidOperation_Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} disabled Mute in channel {1}.
         /// </summary>
         internal static string MuteDisabled {

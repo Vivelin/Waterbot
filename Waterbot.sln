@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waterbot", "Waterbot\Waterbot.csproj", "{01BCD9FF-1830-4F68-B170-8DD45F071CD3}"
 EndProject
@@ -11,7 +11,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kappa", "Kappa\Kappa.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common\Common.csproj", "{E2301A6F-EA4F-4BBE-AD66-A7DB20B8C5BE}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Logging", "Common\Logging\Logging.shproj", "{2951A29B-8ADA-4480-81F5-AA7C202EC870}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Logging\Logging.projitems*{01bcd9ff-1830-4f68-b170-8dd45f071cd3}*SharedItemsImports = 4
+		Common\Logging\Logging.projitems*{e2301a6f-ea4f-4bbe-ad66-a7db20b8c5be}*SharedItemsImports = 4
+		Common\Logging\Logging.projitems*{8344e526-df88-47b4-9da6-9865d29d3a60}*SharedItemsImports = 4
+		Common\Logging\Logging.projitems*{2951a29b-8ada-4480-81f5-aa7c202ec870}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
